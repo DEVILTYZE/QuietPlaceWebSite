@@ -1,15 +1,14 @@
-﻿using System.Collections.Generic;
-
-namespace QuietPlaceWebProject.Interfaces
+﻿namespace QuietPlaceWebProject.Interfaces
 {
+    // Все права на взаимодействие с досками есть у админа.
     public interface IBoard
     {
         int Id { get; set; }
         
         string Name { get; set; }
         
-        int MaxCountOfThreads { get; set; }
+        string DomainName { get; set; }
         
-        IEnumerable<IThread> Threads { get; set; }
+        int MaxCountOfThreads { get; set; }
     }
 }
