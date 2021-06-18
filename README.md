@@ -1,2 +1,2 @@
 # QuietPlaceWebSite
-This is our project. We making a web-site here.
+Это университетский проект. Делаем сайт на ASP.NET.
