@@ -6,6 +6,6 @@
         
         string Path { get; set; }
         
-        IPost Post { get; set; }
+        int PostId { get; set; }
     }
 }

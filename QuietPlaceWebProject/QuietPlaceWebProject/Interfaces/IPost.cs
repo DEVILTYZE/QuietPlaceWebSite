@@ -1,13 +1,5 @@
-﻿using System;
-
-namespace QuietPlaceWebProject.Interfaces
+﻿namespace QuietPlaceWebProject.Interfaces
 {
-    public enum MarkOfMessage
-    {
-        Anon,
-        OriginalPoster
-    }
-    
     // Все права на взаимодействие с сообщениями есть у всех пользователей, исключая забаненных.
     public interface IPost
     {
@@ -15,16 +7,14 @@ namespace QuietPlaceWebProject.Interfaces
         
         string Text { get; set; }
         
-        DateTime DateOfCreation { get; set; }
+        string DateOfCreation { get; set; }
         
-        IUser Sender { get; set; }
+        int SenderId { get; set; }
         
-        IPost PostOfTovarishch { get; set; }
+        int PostOfTovarishchId { get; set; }
 
-        MarkOfMessage Mark { get; set; }
+        bool IsOriginalPoster { get; set; }
         
-        IThread Thread { get; set; }
-
-        bool IsOriginalPoster();
+        int ThreadId { get; set; }
     }
 }

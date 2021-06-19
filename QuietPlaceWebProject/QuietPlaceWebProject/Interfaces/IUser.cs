@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-namespace QuietPlaceWebProject.Interfaces
+﻿namespace QuietPlaceWebProject.Interfaces
 {
     // Пользователь будет записываться (обновляться) в БД, когда напишет сообщение, создаст тред или введёт пасскод.
     // Пользователи, не имеющие пасскод, хранятся в БД 24 часа.
@@ -9,11 +7,8 @@ namespace QuietPlaceWebProject.Interfaces
     // Право на бан пользователя есть дополнительно у модераторов.
     public interface IUser
     {
-        IPAddress AddressOfUser { get; set; }
+        string AddressOfUser { get; set; }
         
-        IPasscode Passcode { get; set; }
-
-        // Метод старта отсчёта таймера до удаления.
-        void StartRemoveTimer();
+        int PasscodeId { get; set; }
     }
 }

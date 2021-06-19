@@ -11,6 +11,8 @@
         
         bool HasBumpLimit { get; set; }
         
-        IBoard Board { get; set; }
+        int BoardId { get; set; }
+        
+        int PosterId { get; set; }
     }
 }

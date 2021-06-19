@@ -10,5 +10,9 @@
         string DomainName { get; set; }
         
         int MaxCountOfThreads { get; set; }
+        
+        bool IsHidden { get; set; }
+        
+        int AccessRoleId { get; set; }
     }
 }

@@ -1,0 +1,25 @@
+﻿@model IEnumerable<IBoard>
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+    <title>Тихое место</title>
+</head>
+<body>
+@foreach (var board in Model)
+{
+    <div class="col-md-auto">
+        <h1>@board.Name</h1>
+        <button class="btn">Открыть</button>
+    </div>
+}
+<div>
+
+</div>
+</body>
+</html>

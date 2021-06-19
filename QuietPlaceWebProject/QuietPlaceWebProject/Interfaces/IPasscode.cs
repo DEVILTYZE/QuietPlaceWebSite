@@ -10,6 +10,6 @@
         
         string Code { get; set; }
         
-        IRole Role { get; set; }
+        int RoleId { get; set; }
     }
 }

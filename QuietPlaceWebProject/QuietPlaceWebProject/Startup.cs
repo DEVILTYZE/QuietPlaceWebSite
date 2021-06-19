@@ -1,13 +1,12 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using QuietPlaceWebProject.Models;
 
 namespace QuietPlaceWebProject
 {
@@ -23,6 +22,26 @@ namespace QuietPlaceWebProject
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            string[] paths =
+            {
+                Environment.CurrentDirectory + @"\App_Data\BoardDB.mdf",
+                Environment.CurrentDirectory + @"\App_Data\UserDB.mdf"
+            };
+            
+            string[] connectionStrings =
+            {
+                "Server=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\'" + paths[0] + "\';Trusted_Connection=True;MultipleActiveResultSets=true;",
+                "Server=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\'" + paths[1] + "\';Trusted_Connection=True;MultipleActiveResultSets=true;"
+            };
+
+            if (!File.Exists(paths[0]))
+                connectionStrings[0] = Configuration.GetConnectionString("BoardConnection");
+            
+            if (!File.Exists(paths[1]))
+                connectionStrings[1] = Configuration.GetConnectionString("UserConnection");
+
+            services.AddDbContext<BoardContext>(options => options.UseSqlServer(connectionStrings[0]));
+            services.AddDbContext<UserContext>(options => options.UseSqlServer(connectionStrings[1]));
             services.AddControllersWithViews();
         }
 
@@ -51,7 +70,7 @@ namespace QuietPlaceWebProject
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Board}/{action=Boards}/{id?}");
             });
         }
     }
