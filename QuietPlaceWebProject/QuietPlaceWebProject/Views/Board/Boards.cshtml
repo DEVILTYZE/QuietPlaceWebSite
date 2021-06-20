@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<IBoard>
 
 @{
-    ViewData["Title"] = "Тихое место";
+    ViewBag.Title = "Тихое место";
     Layout = "_Layout";
 }
 
@@ -31,7 +31,10 @@
     </div>
 </div>
 
-@if (ViewBag.RedirectStatus is not null && ViewBag.RedirectStatus)
+@if (ViewBag.NotifyIsEnabled is not null && ViewBag.NotifyIsEnabled)
 {
-    <script type="application/javascript">sendNotification("Результат", {body: @ViewBag.NotificationText, dir: 'auto' })</script>
+    <script type="application/javascript">
+        //alert("xyu");
+        sendNotification("Результат", {body: '@ViewBag.TextNotification', dir: 'auto', icon: '@Url.Content("~/images/")notification.jpg' })
+    </script>
 }

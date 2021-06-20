@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -22,13 +21,13 @@ namespace QuietPlaceWebProject.Controllers
             InitialDatabase();
         }
 
-        public IActionResult Boards(object values = null)
+        [HttpGet]
+        public IActionResult Boards()
         {
-            if (values is not null)
+            if (TempData is not null)
             {
-                var (item1, item2) = (Tuple<bool, string>) values;
-                ViewBag.RedirectStatus = item1;
-                ViewBag.NotificationText = item2;
+                ViewBag.NotifyIsEnabled = TempData["NotifyIsEnabled"] as bool? ?? false;
+                ViewBag.TextNotification = (string) TempData["TextNotification"] ?? string.Empty;
             }
             
             var boards = _dbBoard.Boards.ToList();
@@ -36,6 +35,7 @@ namespace QuietPlaceWebProject.Controllers
             return View(boards);
         }
 
+        [HttpGet]
         public IActionResult Create()
         {
             ViewBag.Roles = new SelectList(_dbUser.Roles, "Id", "Name");
@@ -44,7 +44,8 @@ namespace QuietPlaceWebProject.Controllers
         }
         
         [HttpPost]
-        public async Task<IActionResult> Create([Bind("Id, Name, DomainName, MaxCountOfThreads, IsHidden, AccessRoleId")]Board board)
+        public async Task<IActionResult> Create([Bind("Id, Name, DomainName, MaxCountOfThreads, IsHidden, AccessRoleId")]
+            Board board)
         {
             ViewBag.Roles = new SelectList(_dbUser.Roles, "Id", "Name");
             
@@ -53,10 +54,12 @@ namespace QuietPlaceWebProject.Controllers
             
             _dbBoard.Boards.Add(board);
             await _dbBoard.SaveChangesAsync();
-            
+
+            EnableNotification("Доска создана успешно");
             return RedirectToAction(nameof(Boards));
         }
 
+        [HttpGet]
         public async Task<IActionResult> Edit(int? boardId)
         {
             if (boardId is null)
@@ -93,19 +96,15 @@ namespace QuietPlaceWebProject.Controllers
                 throw;
             }
 
-            ViewBag.RedirectStatus = true;
-            ViewBag.NotificationText = "Доска сохранена";
-            return RedirectToAction(nameof(Boards), new Tuple<bool, string>(ViewBag.RedirectStatus, ViewBag.NotificationText));
+            EnableNotification("Доска изменена успешно");
+            return RedirectToAction(nameof(Boards));
         }
 
+        [HttpGet]
         public async Task<IActionResult> Remove(int? boardId)
         {
             if (_dbBoard.Boards.Count() == 1)
-            {
-                ViewBag.RedirectStatus = true;
-                ViewBag.NotificationText = "Доска удалена";
                 return RedirectToAction(nameof(Boards));
-            }
             
             if (boardId is null)
                 return NotFound();
@@ -121,6 +120,7 @@ namespace QuietPlaceWebProject.Controllers
             _dbBoard.Boards.Remove(await _dbBoard.Boards.FindAsync(boardId));
             await _dbBoard.SaveChangesAsync();
 
+            EnableNotification("Доска удалена успешно");
             return RedirectToAction(nameof(Boards));
         }
 
@@ -128,10 +128,6 @@ namespace QuietPlaceWebProject.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier});
-        }
-
-        private void GetInfoNotification(string text)
-        {
         }
         
         private void InitialDatabase()
@@ -168,6 +164,12 @@ namespace QuietPlaceWebProject.Controllers
 
             _dbBoard.SaveChanges();
             _dbUser.SaveChanges();
+        }
+
+        private void EnableNotification(string text)
+        {
+            TempData["NotifyIsEnabled"] = true;
+            TempData["TextNotification"] = text;
         }
     }
 }

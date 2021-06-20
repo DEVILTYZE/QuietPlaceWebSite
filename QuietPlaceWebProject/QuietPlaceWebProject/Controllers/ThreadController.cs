@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using QuietPlaceWebProject.Interfaces;
 using QuietPlaceWebProject.Models;
 
 namespace QuietPlaceWebProject.Controllers
@@ -17,7 +16,7 @@ namespace QuietPlaceWebProject.Controllers
             _dbUser = dbUser;
         }
         
-        // GET
+        [HttpGet]
         public IActionResult Threads(int? boardId)
         {
             if (boardId is null)
@@ -33,6 +32,33 @@ namespace QuietPlaceWebProject.Controllers
                 ViewBag.Message = "Доска пустая. Будьте первым, кто добавит тред!";
             
             return View(threads);
+        }
+
+        [HttpGet]
+        public IActionResult Create(int boardId)
+        {
+            ViewBag.BoardId = boardId;
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([Bind("Id, Name, HasBumpLimit, BoardId, PosterId")]
+            Thread thread, string textPost)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.TextPost = textPost;
+                return View(thread);
+            }
+
+            thread.HasBumpLimit = true;
+            TempData["TextPost"] = textPost;
+
+            _dbBoard.Threads.Add(thread);
+            await _dbBoard.SaveChangesAsync();
+
+            return RedirectToAction("Create", "Post", new {threadId = thread.Id, senderId = thread.PosterId});
         }
     }
 }

@@ -3,42 +3,29 @@
 
 // Write your JavaScript code.
 
-function sendNotification(title, options) 
-{
-	// Проверим, поддерживает ли браузер HTML5 Notifications
-	if (!("Notification" in window)) 
-	{
-		alert('Ваш браузер не поддерживает HTML Notifications, его необходимо обновить.');
+function sendNotification(title, options) {
+	// Проверка поддержки браузером уведомлений
+	if (!("Notification" in window)) {
+		alert("This browser does not support desktop notification");
 	}
 
-	// Проверим, есть ли права на отправку уведомлений
-	else if (Notification.permission === "granted") 
-	{
-		// Если права есть, отправим уведомление
-		var notification = new Notification(title, options);
-
-		function clickFunc() { alert('Пользователь кликнул на уведомление'); }
-
-		notification.onclick = clickFunc;
+	// Проверка разрешения на отправку уведомлений
+	else if (Notification.permission === "granted") {
+		// Если разрешено, то создаём уведомление
+		let notification = new Notification(title, options);
 	}
 
-	// Если прав нет, пытаемся их получить
-	else if (Notification.permission !== 'denied') 
-	{
-		Notification.requestPermission(function (permission) 
-		{
-			// Если права успешно получены, отправляем уведомление
-			if (permission === "granted") 
-			{
-				var notification = new Notification(title, options);
-			} 
-			else 
-			{
-				alert('Вы запретили показывать уведомления'); // Юзер отклонил наш запрос на показ уведомлений
+	// В противном случае, запрашиваем разрешение
+	else if (Notification.permission !== 'denied') {
+		Notification.requestPermission(function (permission) {
+			// Если пользователь разрешил, то создаём уведомление
+			if (permission === "granted") {
+				let notification = new Notification(title, options);
 			}
 		});
-	} 
-	else { }
-	// Пользователь ранее отклонил наш запрос на показ уведомлений
-	// В этом месте мы можем, но не будем его беспокоить. Уважайте решения своих пользователей.
+	}
+
+	// В конечном счёте, если пользователь отказался от получения
+	// уведомлений, то стоит уважать его выбор и не беспокоить его
+	// по этому поводу.
 }

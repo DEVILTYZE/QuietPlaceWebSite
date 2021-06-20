@@ -1,0 +1,32 @@
+﻿@model Post
+
+@{
+    ViewBag.Title = "Новый ответ";
+    Layout = "_Layout";
+}
+
+<h1>@ViewBag.Title</h1>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md">
+            <form asp-action="Create" method="Post" enctype="multipart/form-data">
+                <input asp-for="SenderId" value="@ViewBag.SenderId" type="hidden" />
+                <input asp-for="ThreadId" value="@ViewBag.ThreadId" type="hidden" />
+                @if (ViewBag.TextPost is null)
+                    {
+                        <div class="form-group">
+                            <input asp-for="Text" type="text" height="100px" width="100px"/>
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" value="Отправить" class="btn btn-default"/>
+                        </div>
+                    }
+                    else
+                    {
+                        <input asp-for="Text" value="@ViewBag.TextPost" type="hidden"/>
+                    }
+            </form>
+        </div>
+    </div>
+</div>

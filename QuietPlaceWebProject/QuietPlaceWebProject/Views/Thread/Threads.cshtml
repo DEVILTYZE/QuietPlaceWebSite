@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<IThread>
 
 @{
-    ViewData["Title"] = ViewBag.FullName;
+    ViewBag.Title = ViewBag.FullName;
     Layout = "_Layout";
 }
 
@@ -10,14 +10,14 @@
         <td>
             <h1>@ViewBag.Name</h1>
         </td>
-        @* <td> *@
-        @*     <form asp-action="Create" asp-controller="Board" method="get"> *@
-        @*         <button class="btn btn-default">Создать новую доску</button> *@
-        @*     </form> *@
-        @* </td> *@
         <td>
             <a asp-action="Edit" asp-controller="Board" asp-route-boardId="@ViewBag.BoardId" class="btn btn-default" method="get">
                 Редактировать доску
+            </a>
+        </td>
+        <td>
+            <a asp-action="Create" asp-controller="Thread" asp-route-boardId="@ViewBag.BoardId" class="btn btn-default" method="get">
+                Создать новый тред
             </a>
         </td>
     </tr>
