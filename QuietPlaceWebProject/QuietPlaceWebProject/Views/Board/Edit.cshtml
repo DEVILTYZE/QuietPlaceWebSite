@@ -13,6 +13,7 @@
         <div class="col-md-4">
             <form asp-action="Edit" asp-controller="Board" method="Post" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
                 <div class="form-group">
                     <label asp-for="Name" class="control-label"></label>
                     <input asp-for="Name" class="form-control" />
@@ -42,7 +43,9 @@
                     <input type="submit" value="Сохранить" class="btn btn-default" />
                 </div>
                 <div class="form-group">
-                    <a asp-action="Remove" asp-controller="Board" asp-route-boardId="@Model.Id" class="btn btn-default">Удалить тред</a>
+                    <a asp-action="Remove" asp-controller="Board" asp-route-boardId="@Model.Id" class="btn btn-default">
+                        Удалить доску
+                    </a>
                 </div>
             </form>
         </div>

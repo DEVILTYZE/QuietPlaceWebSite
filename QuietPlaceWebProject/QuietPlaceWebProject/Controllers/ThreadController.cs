@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using QuietPlaceWebProject.Interfaces;
 using QuietPlaceWebProject.Models;
 
 namespace QuietPlaceWebProject.Controllers
@@ -18,11 +20,11 @@ namespace QuietPlaceWebProject.Controllers
         // GET
         public IActionResult Threads(int? boardId)
         {
-            if (boardId == null)
+            if (boardId is null)
                 return NotFound();
             
             var threads = _dbBoard.Threads.Where(thread => thread.BoardId == boardId).ToList();
-            var board = _dbBoard.Boards.First(localBoard => localBoard.Id == boardId);
+            var board = _dbBoard.Boards.Find(boardId);
             ViewBag.FullName = board.DomainName + " — " + board.Name;
             ViewBag.Name = board.Name;
             ViewBag.BoardId = boardId;

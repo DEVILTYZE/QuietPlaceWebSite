@@ -1,8 +1,10 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using QuietPlaceWebProject.Models;
 
 namespace QuietPlaceWebProject.Controllers
@@ -20,8 +22,15 @@ namespace QuietPlaceWebProject.Controllers
             InitialDatabase();
         }
 
-        public IActionResult Boards()
+        public IActionResult Boards(object values = null)
         {
+            if (values is not null)
+            {
+                var (item1, item2) = (Tuple<bool, string>) values;
+                ViewBag.RedirectStatus = item1;
+                ViewBag.NotificationText = item2;
+            }
+            
             var boards = _dbBoard.Boards.ToList();
 
             return View(boards);
@@ -48,12 +57,12 @@ namespace QuietPlaceWebProject.Controllers
             return RedirectToAction(nameof(Boards));
         }
 
-        public IActionResult Edit(int? boardId)
+        public async Task<IActionResult> Edit(int? boardId)
         {
-            if (boardId == null)
+            if (boardId is null)
                 return NotFound();
 
-            var board = _dbBoard.Boards.Find(boardId);
+            var board = await _dbBoard.Boards.FindAsync(boardId);
             ViewBag.Roles = new SelectList(_dbUser.Roles, "Id", "Name");
 
             return View(board);
@@ -64,44 +73,65 @@ namespace QuietPlaceWebProject.Controllers
             Board board)
         {
             if (!ModelState.IsValid)
+            {
+                ViewBag.Roles = new SelectList(_dbUser.Roles, "Id", "Name");
+                
                 return View(board);
+            }
 
             try
             {
-                _dbBoard.Boards.Update(board);
+                // _dbBoard.Boards.Update(board);
+                _dbBoard.Entry(board).State = EntityState.Modified;
                 await _dbBoard.SaveChangesAsync();
             }
-            catch
+            catch (DbUpdateConcurrencyException)
             {
                 if (!_dbBoard.Boards.Any(localBoard => localBoard.Id == board.Id))
                     return NotFound();
+                
+                throw;
             }
 
-            return RedirectToAction("Threads", "Thread");
+            ViewBag.RedirectStatus = true;
+            ViewBag.NotificationText = "Доска сохранена";
+            return RedirectToAction(nameof(Boards), new Tuple<bool, string>(ViewBag.RedirectStatus, ViewBag.NotificationText));
         }
 
-        public IActionResult Remove(int? boardId)
+        public async Task<IActionResult> Remove(int? boardId)
         {
-            if (boardId == null)
+            if (_dbBoard.Boards.Count() == 1)
+            {
+                ViewBag.RedirectStatus = true;
+                ViewBag.NotificationText = "Доска удалена";
+                return RedirectToAction(nameof(Boards));
+            }
+            
+            if (boardId is null)
                 return NotFound();
             
-            var board = _dbBoard.Boards.Find(boardId);
+            var board = await _dbBoard.Boards.FindAsync(boardId);
             
             return View(board);
         }
         
         [HttpPost]
-        public IActionResult Remove(int boardId)
+        public async Task<IActionResult> Remove(int boardId)
         {
-            _dbBoard.Boards.Remove(_dbBoard.Boards.Find(boardId));
+            _dbBoard.Boards.Remove(await _dbBoard.Boards.FindAsync(boardId));
+            await _dbBoard.SaveChangesAsync();
 
-            return Redirect("Boards");
+            return RedirectToAction(nameof(Boards));
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier});
+        }
+
+        private void GetInfoNotification(string text)
+        {
         }
         
         private void InitialDatabase()
