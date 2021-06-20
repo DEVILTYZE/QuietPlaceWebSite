@@ -1,4 +1,6 @@
-﻿namespace QuietPlaceWebProject.Interfaces
+﻿using System;
+
+namespace QuietPlaceWebProject.Interfaces
 {
     // Все права на взаимодействие с сообщениями есть у всех пользователей, исключая забаненных.
     public interface IPost
@@ -7,7 +9,7 @@
         
         string Text { get; set; }
         
-        string DateOfCreation { get; set; }
+        DateTime DateOfCreation { get; set; }
         
         int SenderId { get; set; }
         

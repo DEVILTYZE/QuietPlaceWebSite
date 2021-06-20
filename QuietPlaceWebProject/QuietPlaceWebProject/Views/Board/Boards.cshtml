@@ -1,25 +1,32 @@
 ﻿@model IEnumerable<IBoard>
 
 @{
-    Layout = null;
+    ViewData["Title"] = "Тихое место";
+    Layout = "_Layout";
 }
 
 <!DOCTYPE html>
 
-<html lang="ru">
-<head>
-    <title>Тихое место</title>
-</head>
-<body>
-@foreach (var board in Model)
-{
-    <div class="col-md-auto">
-        <h1>@board.Name</h1>
-        <button class="btn">Открыть</button>
-    </div>
-}
-<div>
+<table>
+    <tr>
+        <td>
+            <h1>Добро пожаловать. Снова.</h1>
+        </td>
+        <td>
+            <a asp-action="Create" asp-controller="Board" class="btn btn-default" method="get">
+                Создать новую доску
+            </a>
+        </td>
+    </tr>
+</table>
 
+<div class="container">
+    <div class="row">
+        @foreach (var board in Model)
+        {
+            <div class="col-sm">
+                <a asp-action="Threads" asp-controller="Thread" asp-route-boardId="@board.Id">@board.Name</a>
+            </div>
+        }
+    </div>
 </div>
-</body>
-</html>

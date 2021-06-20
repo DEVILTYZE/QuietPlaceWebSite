@@ -1,0 +1,42 @@
+﻿@model IEnumerable<IThread>
+
+@{
+    ViewData["Title"] = ViewBag.FullName;
+    Layout = "_Layout";
+}
+
+<table>
+    <tr>
+        <td>
+            <h1>@ViewBag.Name</h1>
+        </td>
+        @* <td> *@
+        @*     <form asp-action="Create" asp-controller="Board" method="get"> *@
+        @*         <button class="btn btn-default">Создать новую доску</button> *@
+        @*     </form> *@
+        @* </td> *@
+        <td>
+            <a asp-action="Edit" asp-controller="Board" asp-route-boardId="@ViewBag.BoardId" class="btn btn-default" method="get">
+                Редактировать доску
+            </a>
+        </td>
+    </tr>
+</table>
+
+<div class="container">
+    <div class="row">
+        @if (!Model.Any())
+        {
+            <h2>@ViewBag.Message</h2>
+        }
+        else
+        {
+            foreach (var thread in Model)
+            {
+                <div class="col-sm">
+                    <a @*asp-action="Posts" asp-controller="Post" asp-route-id="@thread.Id"*@>@thread.Name</a>
+                </div>
+            }
+        }
+    </div>
+</div>

@@ -1,0 +1,47 @@
+﻿@model Board
+
+@{
+    ViewData["Title"] = "Создание новой доски";
+    Layout = "_Layout";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<hr />
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <form asp-action="Create" asp-controller="Board" method="Post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DomainName" class="control-label"></label>
+                    <input asp-for="DomainName" class="form-control" />
+                    <span asp-validation-for="DomainName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="MaxCountOfThreads" class="control-label"></label>
+                    <input type="number" asp-for="MaxCountOfThreads" class="form-control" />
+                    <span asp-validation-for="MaxCountOfThreads" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="IsHidden" class="control-label"></label>
+                    <input type="checkbox" asp-for="IsHidden" class="form-control" unchecked />
+                    <span asp-validation-for="IsHidden" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="AccessRoleId" class="control-label"></label>
+                    <select asp-for="AccessRoleId" class="form-control" asp-items="ViewBag.Roles"></select>
+                    <span asp-validation-for="AccessRoleId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Создать" class="btn btn-default" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

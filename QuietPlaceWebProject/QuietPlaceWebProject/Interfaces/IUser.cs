@@ -7,8 +7,12 @@
     // Право на бан пользователя есть дополнительно у модераторов.
     public interface IUser
     {
+        int Id { get; set; }
+        
         string AddressOfUser { get; set; }
         
         int PasscodeId { get; set; }
+        
+        bool IsBanned { get; set; }
     }
 }
