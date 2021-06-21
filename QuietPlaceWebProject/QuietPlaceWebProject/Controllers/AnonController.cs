@@ -14,11 +14,9 @@ namespace QuietPlaceWebProject.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(int threadId)
         {
-            var host = Dns.GetHostName();
-            var ip = (await Dns.GetHostEntryAsync(host)).AddressList[0];
-            var ipAddress = ip.ToString();
+            var ipAddress = await GetUserIpAddress();
 
-            var user = new User()
+            var user = new User
             {
                 IpAddress = ipAddress,
                 IsBanned = false,
@@ -28,9 +26,18 @@ namespace QuietPlaceWebProject.Controllers
             _dbUser.Users.Add(user);
             await _dbUser.SaveChangesAsync();
 
-            TempData["PosterId"] = user.Id;
+            // TempData["PosterId"] = user.Id;
 
             return RedirectToAction("Create", "Post", new { threadId });
+        }
+        
+        public static async Task<string> GetUserIpAddress()
+        {
+            var host = Dns.GetHostName();
+            var ip = (await Dns.GetHostEntryAsync(host)).AddressList[0];
+            var ipAddress = ip.ToString();
+
+            return ipAddress;
         }
     }
 }

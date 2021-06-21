@@ -46,20 +46,26 @@ namespace QuietPlaceWebProject.Controllers
         public async Task<IActionResult> Create([Bind("Id, Name, HasBumpLimit, BoardId, PosterId")]
             Thread thread, string textPost)
         {
+            thread.HasBumpLimit = true;
+            
             if (!ModelState.IsValid)
             {
                 ViewBag.TextPost = textPost;
                 return View(thread);
             }
             
-            thread.HasBumpLimit = true;
             TempData["TextPost"] = textPost;
+            TempData["IsOP"] = true;
+            
+            // var ipAddressOfUser = await AnonController.GetUserIpAddress();
+            // var user = _dbUser.Users.Where(localUser => localUser.IpAddress == ipAddressOfUser).ToList().First();
+            // if (user is not null)
+            //     TempData["PosterId"] = user.Id;
 
             await _dbBoard.Threads.AddAsync(thread);
             await _dbBoard.SaveChangesAsync();
 
-            return RedirectToAction("Create", "Post", 
-                new { threadId = thread.Id, isOriginalPoster = true });
+            return RedirectToAction("Create", "Post", new { threadId = thread.Id });
         }
     }
 }

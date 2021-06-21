@@ -148,7 +148,7 @@ namespace QuietPlaceWebProject.Controllers
             if (_dbBoard.Boards.Any()) 
                 return;
             
-            var defaultBoard = new Board()
+            var defaultBoard = new Board
             {
                 Id = 0,
                 Name = "Разработка Имиджборды",
@@ -158,14 +158,14 @@ namespace QuietPlaceWebProject.Controllers
                 AccessRoleId = 0
             };
 
-            var defaultPasscode = new Passcode()
+            var defaultPasscode = new Passcode
             {
                 Id = 0,
                 Code = "adm1n",
                 RoleId = 0
             };
 
-            var defaultRole = new Role()
+            var defaultRole = new Role
             {
                 Id = 0,
                 Name = "Admin"

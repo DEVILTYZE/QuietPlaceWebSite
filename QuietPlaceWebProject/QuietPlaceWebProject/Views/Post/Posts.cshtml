@@ -15,7 +15,7 @@
         @*     </a> *@
         @* </td> *@
         <td>
-            <a asp-action="Create" asp-controller="Post" asp-route-boardId="@ViewBag.ThreadId" class="btn btn-default" method="get">
+            <a asp-action="Create" asp-controller="Post" asp-route-threadId="@ViewBag.ThreadId" class="btn btn-default" method="get">
                 Ответить в тред
             </a>
         </td>
@@ -24,24 +24,39 @@
 
 <div class="container">
     <div class="row">
-        @foreach (var post in Model)
-        {
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-auto">
-                        @post.PosterId
+        @{
+            int count = 1;
+            @foreach (var post in Model)
+            {
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-auto">
+                            №@count
+                        </div>
+                        <div class="col-sm-auto">
+                            Аноним
+                        </div>
+                        <div class="col-sm-auto">
+                            ID: @post.Id
+                        </div>
+                        <div class="col-sm-auto">
+                            @if (post.IsOriginalPoster)
+                            {
+                                <label>ОП</label>
+                            }
+                        </div>
+                        <div class="col-sm-auto">
+                            @post.DateOfCreation
+                        </div>
                     </div>
-                    <div class="col-sm-auto">
-                        @if (post.IsOriginalPoster)
-                        {
-                            <label>ОП</label>
-                        }
-                    </div>
-                    <div class="col-sm-auto">
-                        @post.DateOfCreation
+                    <div class="row">
+                        <div class="col-sm-auto">
+                            @post.Text
+                        </div>
                     </div>
                 </div>
-            </div>
+               ++count;
+            }
         }
     </div>
 </div>

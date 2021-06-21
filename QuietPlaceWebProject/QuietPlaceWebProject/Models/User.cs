@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Mvc;
 using QuietPlaceWebProject.Interfaces;
@@ -20,5 +21,8 @@ namespace QuietPlaceWebProject.Models
 
         [Display(Name = "Забанен: ")]
         public bool IsBanned { get; set; }
+
+        [HiddenInput(DisplayValue = false)]
+        public DateTime TimeOfRemoving { get; set; }
     }
 }

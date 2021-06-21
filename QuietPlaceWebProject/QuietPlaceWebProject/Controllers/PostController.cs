@@ -30,20 +30,21 @@ namespace QuietPlaceWebProject.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create(int threadId, bool? isOriginalPoster)
+        public async Task<IActionResult> Create(int threadId)
         {
-            var posterId = TempData["PosterId"] as int? ?? -1;
+            var ipAddressOfUser = await AnonController.GetUserIpAddress();
+            var posterList = _dbUser.Users.Where(localUser => localUser.IpAddress == ipAddressOfUser).ToList();
+
+            var posterId = posterList.Count == 1 ? posterList.First().Id : -1;
+            
+            // var posterId = TempData["PosterId"] as int? ?? -1;
 
             if (posterId == -1)
-            {
-                TempData["IsOP"] = isOriginalPoster;
-                
                 return RedirectToAction("Create", "Anon", new { threadId });
-            }
 
-            isOriginalPoster = TempData["IsOP"] as bool? ?? false;
+            var isOriginalPoster = TempData["IsOP"] as bool? ?? false;
 
-            if (isOriginalPoster.Value)
+            if (isOriginalPoster)
             {
                 var thread = await _dbBoard.Threads.FindAsync(threadId);
                 
@@ -73,16 +74,16 @@ namespace QuietPlaceWebProject.Controllers
         public async Task<IActionResult> Create([Bind("Id, Text, DateOfCreation, PosterId, PostOfTovarishchId, IsOriginalPoster, ThreadId")]
             Post post)
         {
-            if (!ModelState.IsValid)
-                return View(post);
-            
             post.DateOfCreation = DateTime.Now;
             post.IsOriginalPoster = IsOriginalPoster(post.PosterId, post.ThreadId);
+            
+            if (!ModelState.IsValid)
+                return View(post);
 
             _dbBoard.Posts.Add(post);
             await _dbBoard.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Posts));
+            return RedirectToAction(nameof(Posts), new { threadId = post.ThreadId });
         }
 
         private bool IsOriginalPoster(int posterId, int threadId)

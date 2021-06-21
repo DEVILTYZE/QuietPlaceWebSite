@@ -1,4 +1,6 @@
-﻿namespace QuietPlaceWebProject.Interfaces
+﻿using System;
+
+namespace QuietPlaceWebProject.Interfaces
 {
     // Пользователь будет записываться (обновляться) в БД, когда напишет сообщение, создаст тред или введёт пасскод.
     // Пользователи, не имеющие пасскод, хранятся в БД 24 часа.
@@ -14,5 +16,7 @@
         int PasscodeId { get; set; }
         
         bool IsBanned { get; set; }
+        
+        DateTime TimeOfRemoving { get; set; }
     }
 }
