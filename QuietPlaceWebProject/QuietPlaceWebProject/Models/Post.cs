@@ -17,22 +17,18 @@ namespace QuietPlaceWebProject.Models
         [Display(Name = "Текст: ")]
         public string Text { get; set; }
         
-        [Required]
         [Display(Name = "Дата создания: ")]
         public DateTime DateOfCreation { get; set; }
         
-        [Required]
         [HiddenInput(DisplayValue = false)]
-        public int SenderId { get; set; }
+        public int PosterId { get; set; }
         
         [HiddenInput(DisplayValue = false)]
         public int PostOfTovarishchId { get; set; }
         
-        [Required]
         [HiddenInput(DisplayValue = false)]
         public bool IsOriginalPoster { get; set; }
         
-        [Required]
         [HiddenInput(DisplayValue = false)]
         public int ThreadId { get; set; }
     }

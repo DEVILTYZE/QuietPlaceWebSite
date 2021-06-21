@@ -15,7 +15,6 @@ namespace QuietPlaceWebProject.Models
         [HiddenInput(DisplayValue = false)]
         public string Path { get; set; }
         
-        [Required]
         [HiddenInput(DisplayValue = false)]
         public int PostId { get; set; }
     }

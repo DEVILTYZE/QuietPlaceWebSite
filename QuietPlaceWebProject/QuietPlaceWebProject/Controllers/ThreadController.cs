@@ -51,14 +51,15 @@ namespace QuietPlaceWebProject.Controllers
                 ViewBag.TextPost = textPost;
                 return View(thread);
             }
-
+            
             thread.HasBumpLimit = true;
             TempData["TextPost"] = textPost;
 
-            _dbBoard.Threads.Add(thread);
+            await _dbBoard.Threads.AddAsync(thread);
             await _dbBoard.SaveChangesAsync();
 
-            return RedirectToAction("Create", "Post", new {threadId = thread.Id, senderId = thread.PosterId});
+            return RedirectToAction("Create", "Post", 
+                new { threadId = thread.Id, isOriginalPoster = true });
         }
     }
 }

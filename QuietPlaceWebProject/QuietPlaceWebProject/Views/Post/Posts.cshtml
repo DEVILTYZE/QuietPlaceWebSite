@@ -1,0 +1,47 @@
+﻿@model IEnumerable<IPost>
+
+@{
+    Layout = "_Layout";
+}
+
+<table>
+    <tr>
+        <td>
+            <h1>@ViewBag.Title</h1>
+        </td>
+        @* <td> *@
+        @*     <a asp-action="Edit" asp-controller="Board" asp-route-boardId="@ViewBag.BoardId" class="btn btn-default" method="get"> *@
+        @*         Редактировать доску *@
+        @*     </a> *@
+        @* </td> *@
+        <td>
+            <a asp-action="Create" asp-controller="Post" asp-route-boardId="@ViewBag.ThreadId" class="btn btn-default" method="get">
+                Ответить в тред
+            </a>
+        </td>
+    </tr>
+</table>
+
+<div class="container">
+    <div class="row">
+        @foreach (var post in Model)
+        {
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-auto">
+                        @post.PosterId
+                    </div>
+                    <div class="col-sm-auto">
+                        @if (post.IsOriginalPoster)
+                        {
+                            <label>ОП</label>
+                        }
+                    </div>
+                    <div class="col-sm-auto">
+                        @post.DateOfCreation
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

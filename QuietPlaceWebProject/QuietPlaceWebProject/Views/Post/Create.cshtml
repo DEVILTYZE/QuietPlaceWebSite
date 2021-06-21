@@ -11,7 +11,7 @@
     <div class="row">
         <div class="col-md">
             <form asp-action="Create" method="Post" enctype="multipart/form-data">
-                <input asp-for="SenderId" value="@ViewBag.SenderId" type="hidden" />
+                <input asp-for="PosterId" value="@ViewBag.SenderId" type="hidden" />
                 <input asp-for="ThreadId" value="@ViewBag.ThreadId" type="hidden" />
                 @if (ViewBag.TextPost is null)
                     {

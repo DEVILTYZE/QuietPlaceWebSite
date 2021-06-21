@@ -11,7 +11,7 @@ namespace QuietPlaceWebProject.Interfaces
         
         DateTime DateOfCreation { get; set; }
         
-        int SenderId { get; set; }
+        int PosterId { get; set; }
         
         int PostOfTovarishchId { get; set; }
 

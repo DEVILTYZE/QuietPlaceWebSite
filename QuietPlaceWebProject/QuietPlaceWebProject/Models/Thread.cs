@@ -11,6 +11,7 @@ namespace QuietPlaceWebProject.Models
         [HiddenInput(DisplayValue = false)]
         public int Id { get; set; }
         
+        [Required]
         [StringLength(50, ErrorMessage = "Тема треда должна быть не более 50 символов.")]
         [Display(Name = "Тема")]
         public string Name { get; set; }
@@ -18,11 +19,9 @@ namespace QuietPlaceWebProject.Models
         [Display(Name = "Бамп-лимит")]
         public bool HasBumpLimit { get; set; }
         
-        [Required]
         [HiddenInput(DisplayValue = false)]
         public int BoardId { get; set; }
         
-        [Required]
         [HiddenInput(DisplayValue = false)]
         public int PosterId { get; set; }
     }

@@ -52,10 +52,10 @@ namespace QuietPlaceWebProject.Controllers
             if (!ModelState.IsValid) 
                 return View(board);
             
-            _dbBoard.Boards.Add(board);
+            await _dbBoard.Boards.AddAsync(board);
             await _dbBoard.SaveChangesAsync();
-
             EnableNotification("Доска создана успешно");
+            
             return RedirectToAction(nameof(Boards));
         }
 
@@ -90,13 +90,14 @@ namespace QuietPlaceWebProject.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_dbBoard.Boards.Any(localBoard => localBoard.Id == board.Id))
+                if (!await _dbBoard.Boards.AnyAsync(localBoard => localBoard.Id == board.Id))
                     return NotFound();
                 
                 throw;
             }
 
             EnableNotification("Доска изменена успешно");
+            
             return RedirectToAction(nameof(Boards));
         }
 
@@ -117,10 +118,22 @@ namespace QuietPlaceWebProject.Controllers
         [HttpPost]
         public async Task<IActionResult> Remove(int boardId)
         {
+            var threadList = _dbBoard.Threads.Where(thread => thread.BoardId == boardId).ToList();
+
+            foreach (var thread in threadList)
+            {
+                var postList = _dbBoard.Posts.Where(post => post.ThreadId == thread.Id).ToList();
+
+                foreach (var post in postList)
+                    _dbBoard.Posts.Remove(post);
+
+                _dbBoard.Threads.Remove(thread);
+            }
+            
             _dbBoard.Boards.Remove(await _dbBoard.Boards.FindAsync(boardId));
             await _dbBoard.SaveChangesAsync();
-
             EnableNotification("Доска удалена успешно");
+            
             return RedirectToAction(nameof(Boards));
         }
 

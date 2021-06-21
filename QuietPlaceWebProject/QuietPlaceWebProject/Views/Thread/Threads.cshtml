@@ -34,7 +34,7 @@
             foreach (var thread in Model)
             {
                 <div class="col-sm">
-                    <a @*asp-action="Posts" asp-controller="Post" asp-route-id="@thread.Id"*@>@thread.Name</a>
+                    <a asp-action="Posts" asp-controller="Post" asp-route-threadId="@thread.Id">@thread.Name</a>
                 </div>
             }
         }

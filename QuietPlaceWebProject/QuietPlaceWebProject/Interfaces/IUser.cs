@@ -9,7 +9,7 @@
     {
         int Id { get; set; }
         
-        string AddressOfUser { get; set; }
+        string IpAddress { get; set; }
         
         int PasscodeId { get; set; }
         

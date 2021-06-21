@@ -13,9 +13,8 @@ namespace QuietPlaceWebProject.Models
 
         [Required]
         [Display(Name = "IP-адрес пользователя: ")]
-        public string AddressOfUser { get; set; }
+        public string IpAddress { get; set; }
         
-        [Required]
         [HiddenInput(DisplayValue = false)]
         public int PasscodeId { get; set; }
 

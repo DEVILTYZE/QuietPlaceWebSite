@@ -20,7 +20,7 @@ namespace QuietPlaceWebProject.Controllers
 
             var user = new User()
             {
-                AddressOfUser = ipAddress,
+                IpAddress = ipAddress,
                 IsBanned = false,
                 PasscodeId = -1
             };
@@ -28,7 +28,9 @@ namespace QuietPlaceWebProject.Controllers
             _dbUser.Users.Add(user);
             await _dbUser.SaveChangesAsync();
 
-            return RedirectToAction("Create", "Post", new { threadId, senderId = user.Id });
+            TempData["PosterId"] = user.Id;
+
+            return RedirectToAction("Create", "Post", new { threadId });
         }
     }
 }

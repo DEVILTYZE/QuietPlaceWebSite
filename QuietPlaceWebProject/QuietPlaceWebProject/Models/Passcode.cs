@@ -11,11 +11,9 @@ namespace QuietPlaceWebProject.Models
         [HiddenInput(DisplayValue = false)]
         public int Id { get; set; }
         
-        [Required]
         [HiddenInput(DisplayValue = false)]
         public string Code { get; set; }
         
-        [Required]
         [HiddenInput(DisplayValue = false)]
         public int RoleId { get; set; }
     }
