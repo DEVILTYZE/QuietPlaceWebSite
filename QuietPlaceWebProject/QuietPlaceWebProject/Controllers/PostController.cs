@@ -98,5 +98,31 @@ namespace QuietPlaceWebProject.Controllers
 
         private bool IsOriginalPoster(int posterId, int threadId)
             => _dbBoard.Threads.Any(thread => thread.PosterId == posterId && thread.Id == threadId);
+
+        [HttpGet]
+        public async Task<IActionResult> Remove(int? postId)
+        {
+            if (postId is null)
+                return NotFound();
+
+            var post = await _dbBoard.Posts.FindAsync(postId);
+
+            return View(post);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Remove(int postId)
+        {
+            var post = await _dbBoard.Posts.FindAsync(postId);
+            _dbBoard.Posts.Remove(post);
+            await _dbBoard.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Posts), new { post.ThreadId });
+        }
+
+        // public IActionResult ToAnswer(int? postId)
+        // {
+        //     
+        // }
     }
 }

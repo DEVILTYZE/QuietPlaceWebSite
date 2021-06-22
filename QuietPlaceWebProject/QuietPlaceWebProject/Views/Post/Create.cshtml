@@ -1,4 +1,4 @@
-﻿@model Post
+﻿@model IPost
 
 @{
     ViewBag.Title = "Новый ответ";
@@ -30,7 +30,7 @@ else
                     <input asp-for="PosterId" value="@ViewBag.PosterId" type="hidden"/>
                     <input asp-for="ThreadId" value="@ViewBag.ThreadId" type="hidden"/>
                     <div class="form-group">
-                        <input asp-for="Text" type="text" height="100px" width="100px"/>
+                        <textarea asp-for="Text" type="text" cols="80" rows="15" placeholder="Ваш ответ..."></textarea>
                     </div>
                     <div class="form-group">
                         <input type="submit" value="Отправить" class="btn btn-default"/>

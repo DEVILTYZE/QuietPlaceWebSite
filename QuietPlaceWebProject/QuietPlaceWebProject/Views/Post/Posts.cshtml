@@ -49,14 +49,18 @@
                         <div class="col-sm-auto">
                             @count
                         </div>
+                        <div>
+                            <a asp-action="Remove" asp-route-postId="@post.Id">Удалить пост</a>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-auto">
-                            @post.Text
+                            <div id="textPost">@post.Text</div>
+                            <script src="js/createAnswer.js"></script>
                         </div>
                     </div>
                 </div>
-               ++count;
+                ++count;
             }
         }
     </div>

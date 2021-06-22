@@ -1,29 +1,23 @@
 ﻿
-sendNotification('Результат действия:', { body: 'Успешно!', dir: 'rtl', icon: 'notification.png'});
+sendNotification('Результат действия:', { body: 'Успешно!', dir: 'rtl', icon: '/images/notification.png'});
 
-function sendNotification(title, options)
-{
+function sendNotification(title, options) {
     // Проверка поддержки браузером уведомлений
-    if (!("Notification" in window))
-    {
+    if (!("Notification" in window)) {
         alert("This browser does not support desktop notification");
     }
 
     // Проверка разрешения на отправку уведомлений
-    else if (Notification.permission === "granted")
-    {
+    else if (Notification.permission === "granted") {
         // Если разрешено, то создаём уведомление
         let notification = new Notification(title, options);
     }
 
     // В противном случае, запрашиваем разрешение
-    else if (Notification.permission !== 'denied')
-    {
-        Notification.requestPermission(function (permission)
-        {
+    else if (Notification.permission !== 'denied') {
+        Notification.requestPermission(function (permission) {
             // Если пользователь разрешил, то создаём уведомление
-            if (permission === "granted")
-            {
+            if (permission === "granted") {
                 let notification = new Notification(title, options);
             }
         });
