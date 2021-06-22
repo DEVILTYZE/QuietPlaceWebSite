@@ -19,8 +19,11 @@ namespace QuietPlaceWebProject.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Posts(int threadId)
+        public async Task<IActionResult> Posts(int? threadId)
         {
+            if (threadId is null)
+                return NotFound();
+            
             var posts = _dbBoard.Posts.Where(post => post.ThreadId == threadId).ToList();
             var thread = await _dbBoard.Threads.FindAsync(threadId);
             ViewBag.ThreadId = threadId;
@@ -30,12 +33,14 @@ namespace QuietPlaceWebProject.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create(int threadId)
+        public async Task<IActionResult> Create(int? threadId)
         {
+            if (threadId is null)
+                return NotFound();
+            
             var ipAddressOfUser = await AnonController.GetUserIpAddress();
-            var posterList = _dbUser.Users.Where(localUser => localUser.IpAddress == ipAddressOfUser).ToList();
-
-            var posterId = posterList.Count == 1 ? posterList.First().Id : -1;
+            var posters = _dbUser.Users.Where(localUser => localUser.IpAddress == ipAddressOfUser).ToList();
+            var posterId = posters.Count == 1 ? posters.First().Id : -1;
             
             // var posterId = TempData["PosterId"] as int? ?? -1;
 
@@ -76,9 +81,14 @@ namespace QuietPlaceWebProject.Controllers
         {
             post.DateOfCreation = DateTime.Now;
             post.IsOriginalPoster = IsOriginalPoster(post.PosterId, post.ThreadId);
-            
+
             if (!ModelState.IsValid)
+            {
+                ViewBag.ThreadId = post.ThreadId;
+                ViewBag.PosterId = post.PosterId;
+                
                 return View(post);
+            }
 
             _dbBoard.Posts.Add(post);
             await _dbBoard.SaveChangesAsync();

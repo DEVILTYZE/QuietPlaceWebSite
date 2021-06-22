@@ -35,8 +35,11 @@ namespace QuietPlaceWebProject.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create(int boardId)
+        public IActionResult Create(int? boardId)
         {
+            if (boardId is null)
+                return NotFound();
+            
             ViewBag.BoardId = boardId;
 
             return View();
@@ -50,22 +53,46 @@ namespace QuietPlaceWebProject.Controllers
             
             if (!ModelState.IsValid)
             {
+                ViewBag.BoardId = thread.BoardId;
                 ViewBag.TextPost = textPost;
+                
                 return View(thread);
             }
             
             TempData["TextPost"] = textPost;
             TempData["IsOP"] = true;
-            
-            // var ipAddressOfUser = await AnonController.GetUserIpAddress();
-            // var user = _dbUser.Users.Where(localUser => localUser.IpAddress == ipAddressOfUser).ToList().First();
-            // if (user is not null)
-            //     TempData["PosterId"] = user.Id;
 
             await _dbBoard.Threads.AddAsync(thread);
             await _dbBoard.SaveChangesAsync();
-
+            TempData["NotifyIsEnabled"] = true;
+            
             return RedirectToAction("Create", "Post", new { threadId = thread.Id });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Remove(int? threadId)
+        {
+            if (threadId is null)
+                return NotFound();
+
+            var thread = await _dbBoard.Threads.FindAsync(threadId);
+
+            return View(thread);
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> Remove(int threadId)
+        {
+            var posts = _dbBoard.Posts.Where(post => post.ThreadId == threadId).ToList();
+            _dbBoard.Posts.RemoveRange(posts);
+
+            var thread = await _dbBoard.Threads.FindAsync(threadId);
+            var boardId = thread.BoardId;
+            _dbBoard.Threads.Remove(thread);
+            await _dbBoard.SaveChangesAsync();
+            TempData["NotifyIsEnabled"] = true;
+
+            return RedirectToAction(nameof(Threads), new { boardId });
         }
     }
 }

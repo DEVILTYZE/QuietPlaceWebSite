@@ -54,7 +54,7 @@ namespace QuietPlaceWebProject.Controllers
             
             await _dbBoard.Boards.AddAsync(board);
             await _dbBoard.SaveChangesAsync();
-            EnableNotification("Доска создана успешно");
+            TempData["NotifyIsEnabled"] = true;
             
             return RedirectToAction(nameof(Boards));
         }
@@ -96,7 +96,7 @@ namespace QuietPlaceWebProject.Controllers
                 throw;
             }
 
-            EnableNotification("Доска изменена успешно");
+            TempData["NotifyIsEnabled"] = true;
             
             return RedirectToAction(nameof(Boards));
         }
@@ -104,11 +104,11 @@ namespace QuietPlaceWebProject.Controllers
         [HttpGet]
         public async Task<IActionResult> Remove(int? boardId)
         {
-            if (_dbBoard.Boards.Count() == 1)
-                return RedirectToAction(nameof(Boards));
-            
             if (boardId is null)
                 return NotFound();
+            
+            if (_dbBoard.Boards.Count() == 1)
+                return RedirectToAction(nameof(Boards));
             
             var board = await _dbBoard.Boards.FindAsync(boardId);
             
@@ -118,21 +118,17 @@ namespace QuietPlaceWebProject.Controllers
         [HttpPost]
         public async Task<IActionResult> Remove(int boardId)
         {
-            var threadList = _dbBoard.Threads.Where(thread => thread.BoardId == boardId).ToList();
+            var threads = _dbBoard.Threads.Where(thread => thread.BoardId == boardId).ToList();
 
-            foreach (var thread in threadList)
-            {
-                var postList = _dbBoard.Posts.Where(post => post.ThreadId == thread.Id).ToList();
+            foreach (var posts in threads.Select(
+                thread => _dbBoard.Posts.Where(post => post.ThreadId == thread.Id).ToList()))
+                _dbBoard.Posts.RemoveRange(posts);
 
-                foreach (var post in postList)
-                    _dbBoard.Posts.Remove(post);
-
-                _dbBoard.Threads.Remove(thread);
-            }
+            _dbBoard.Threads.RemoveRange(threads);
             
             _dbBoard.Boards.Remove(await _dbBoard.Boards.FindAsync(boardId));
             await _dbBoard.SaveChangesAsync();
-            EnableNotification("Доска удалена успешно");
+            TempData["NotifyIsEnabled"] = true;
             
             return RedirectToAction(nameof(Boards));
         }
@@ -177,12 +173,6 @@ namespace QuietPlaceWebProject.Controllers
 
             _dbBoard.SaveChanges();
             _dbUser.SaveChanges();
-        }
-
-        private void EnableNotification(string text)
-        {
-            TempData["NotifyIsEnabled"] = true;
-            TempData["TextNotification"] = text;
         }
     }
 }

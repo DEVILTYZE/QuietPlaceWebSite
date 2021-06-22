@@ -9,11 +9,11 @@
         <td>
             <h1>@ViewBag.Title</h1>
         </td>
-        @* <td> *@
-        @*     <a asp-action="Edit" asp-controller="Board" asp-route-boardId="@ViewBag.BoardId" class="btn btn-default" method="get"> *@
-        @*         Редактировать доску *@
-        @*     </a> *@
-        @* </td> *@
+        <td>
+            <a asp-action="Remove" asp-controller="Thread" asp-route-threadId="@ViewBag.ThreadId" class="btn btn-default" method="get">
+                Удалить тред
+            </a>
+        </td>
         <td>
             <a asp-action="Create" asp-controller="Post" asp-route-threadId="@ViewBag.ThreadId" class="btn btn-default" method="get">
                 Ответить в тред
@@ -25,28 +25,29 @@
 <div class="container">
     <div class="row">
         @{
-            int count = 1;
-            @foreach (var post in Model)
+            var count = 1;
+            
+            foreach (var post in Model)
             {
                 <div class="container">
                     <div class="row">
                         <div class="col-sm-auto">
-                            №@count
-                        </div>
-                        <div class="col-sm-auto">
                             Аноним
+                        </div>
+                        @if (post.IsOriginalPoster)
+                        {
+                            <div class="col-sm-auto">
+                                <label>ОП</label>
+                            </div>
+                        }
+                        <div class="col-sm-auto">
+                            @post.DateOfCreation
                         </div>
                         <div class="col-sm-auto">
                             ID: @post.Id
                         </div>
                         <div class="col-sm-auto">
-                            @if (post.IsOriginalPoster)
-                            {
-                                <label>ОП</label>
-                            }
-                        </div>
-                        <div class="col-sm-auto">
-                            @post.DateOfCreation
+                            @count
                         </div>
                     </div>
                     <div class="row">

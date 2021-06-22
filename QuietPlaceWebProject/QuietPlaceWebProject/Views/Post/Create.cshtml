@@ -10,7 +10,6 @@
     <form id="postForm" asp-action="Create" method="Post" enctype="multipart/form-data">
         <input asp-for="PosterId" value="@ViewBag.PosterId" type="hidden" />
         <input asp-for="ThreadId" value="@ViewBag.ThreadId" type="hidden" />
-        <input type="submit" id="submitButton" />
         <input asp-for="Text" value="@ViewBag.TextPost" type="hidden"/>
         <script>
         window.onload = function () {
@@ -20,22 +19,24 @@
         </script>
     </form>
 }
+else
+{
+    <h1>@ViewBag.Title</h1>
 
-<h1>@ViewBag.Title</h1>
-
-<div class="container">
-    <div class="row">
-        <div class="col-md">
-            <form asp-action="Create" method="Post" enctype="multipart/form-data">
-                <input asp-for="PosterId" value="@ViewBag.PosterId" type="hidden" />
-                <input asp-for="ThreadId" value="@ViewBag.ThreadId" type="hidden" />
-                <div class="form-group">
-                    <input asp-for="Text" type="text" height="100px" width="100px"/>
-                </div>
-                <div class="form-group">
-                    <input type="submit" value="Отправить" class="btn btn-default"/>
-                </div>
-            </form>
+    <div class="container">
+        <div class="row">
+            <div class="col-md">
+                <form asp-action="Create" method="Post" enctype="multipart/form-data">
+                    <input asp-for="PosterId" value="@ViewBag.PosterId" type="hidden"/>
+                    <input asp-for="ThreadId" value="@ViewBag.ThreadId" type="hidden"/>
+                    <div class="form-group">
+                        <input asp-for="Text" type="text" height="100px" width="100px"/>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Отправить" class="btn btn-default"/>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
+}
