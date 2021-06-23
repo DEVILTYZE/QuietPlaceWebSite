@@ -9,7 +9,7 @@ namespace QuietPlaceWebProject.Models
     public class Thread : IThread
     {
         [HiddenInput(DisplayValue = false)]
-        public int Id { get; set; }
+        public int Id { get; init; }
         
         [Required]
         [StringLength(50, ErrorMessage = "Тема треда должна быть не более 50 символов.")]

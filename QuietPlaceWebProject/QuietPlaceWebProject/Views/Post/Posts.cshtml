@@ -50,6 +50,9 @@
                             @count
                         </div>
                         <div>
+                            <a asp-action="ToAnswer" asp-route-threadId="@post.ThreadId" asp-route-postId="@post.Id">Ответить</a>
+                        </div>
+                        <div>
                             <a asp-action="Remove" asp-route-postId="@post.Id">Удалить пост</a>
                         </div>
                     </div>

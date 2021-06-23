@@ -146,7 +146,6 @@ namespace QuietPlaceWebProject.Controllers
             
             var defaultBoard = new Board
             {
-                Id = 0,
                 Name = "Разработка Имиджборды",
                 DomainName = "/dib/",
                 MaxCountOfThreads = 20,
@@ -156,14 +155,12 @@ namespace QuietPlaceWebProject.Controllers
 
             var defaultPasscode = new Passcode
             {
-                Id = 0,
                 Code = "adm1n",
                 RoleId = 0
             };
 
             var defaultRole = new Role
             {
-                Id = 0,
                 Name = "Admin"
             };
 

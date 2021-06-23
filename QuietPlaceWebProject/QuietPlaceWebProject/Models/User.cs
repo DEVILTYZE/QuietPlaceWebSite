@@ -10,7 +10,7 @@ namespace QuietPlaceWebProject.Models
     public class User : IUser
     {
         [HiddenInput(DisplayValue = false)]
-        public int Id { get; set; }
+        public int Id { get; init; }
 
         [Required]
         [Display(Name = "IP-адрес пользователя: ")]

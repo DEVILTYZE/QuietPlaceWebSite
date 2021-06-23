@@ -3,7 +3,7 @@
     // Все права на взаимодействие с досками есть у админа.
     public interface IBoard
     {
-        int Id { get; set; }
+        int Id { get; init; }
         
         string Name { get; set; }
         

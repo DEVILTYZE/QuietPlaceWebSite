@@ -9,7 +9,7 @@ namespace QuietPlaceWebProject.Interfaces
     // Право на бан пользователя есть дополнительно у модераторов.
     public interface IUser
     {
-        int Id { get; set; }
+        int Id { get; init; }
         
         string IpAddress { get; set; }
         

@@ -9,7 +9,7 @@ namespace QuietPlaceWebProject.Models
     public class Role : IRole
     {
         [HiddenInput(DisplayValue = false)]
-        public int Id { get; set; }
+        public int Id { get; init; }
         
         [Required]
         [StringLength(30, MinimumLength = 3, ErrorMessage = "Имя роли должно быть от 3 до 30 символов.")]

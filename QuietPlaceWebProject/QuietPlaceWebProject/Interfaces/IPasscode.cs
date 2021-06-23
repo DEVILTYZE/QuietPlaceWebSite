@@ -6,7 +6,7 @@
     // Пасскод отключает капчу.
     public interface IPasscode
     {
-        int Id { get; set; }
+        int Id { get; init; }
         
         string Code { get; set; }
         

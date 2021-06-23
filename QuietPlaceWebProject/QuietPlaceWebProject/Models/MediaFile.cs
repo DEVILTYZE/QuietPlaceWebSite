@@ -9,7 +9,7 @@ namespace QuietPlaceWebProject.Models
     public class MediaFile : IMediaFile
     {
         [HiddenInput(DisplayValue = false)]
-        public int Id { get; set; }
+        public int Id { get; init; }
         
         [Required]
         [HiddenInput(DisplayValue = false)]

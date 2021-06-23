@@ -9,7 +9,7 @@ namespace QuietPlaceWebProject.Models
     public class Passcode : IPasscode
     {
         [HiddenInput(DisplayValue = false)]
-        public int Id { get; set; }
+        public int Id { get; init; }
         
         [HiddenInput(DisplayValue = false)]
         public string Code { get; set; }

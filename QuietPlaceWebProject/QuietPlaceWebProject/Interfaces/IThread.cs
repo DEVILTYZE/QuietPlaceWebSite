@@ -5,7 +5,7 @@
     // Право на создание треда есть дополнительно у всех пользователей, за исключением забаненных.
     public interface IThread
     {
-        int Id { get; set; }
+        int Id { get; init; }
         
         string Name { get; set; }
         
