@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QuietPlaceWebProject.Helpers;
 using QuietPlaceWebProject.Models;
 
 namespace QuietPlaceWebProject.Controllers
@@ -49,7 +50,7 @@ namespace QuietPlaceWebProject.Controllers
             // var posterId = TempData["PosterId"] as int? ?? -1;
 
             if (answerId != -1)
-                TempData["TextPost"] = ">>" + answerId + "\r\n" + TempData["TextPost"];
+                TempData["TextPost"] = "&gt;&gt;" + answerId + "\r\n" + TempData["TextPost"];
 
             if (posterId == -1)
                 return RedirectToAction("Create", "Anon", new { threadId });
@@ -97,8 +98,6 @@ namespace QuietPlaceWebProject.Controllers
                 return View(post);
             }
 
-            post.Text = ReworkTextPost(post.Text);
-
             _dbBoard.Posts.Add(post);
             await _dbBoard.SaveChangesAsync();
 
@@ -137,60 +136,24 @@ namespace QuietPlaceWebProject.Controllers
             return RedirectToAction(nameof(Create), new { threadId });
         }
 
-        private static string ReworkTextPost(string text)
-        {
-            const string aOrangeStart = "<a style=\"color: orange\">";
-            const string aGreenStart = "<a style\"color: green\">";
-            const string aEnd = "</a>";
-            var matches = GetAnswerIdsStrings(text);
-            var greenStrings = GetGreenTextStrings(text);
-
-            var matchArray = matches as Match[] ?? matches.ToArray();
-            text = "\"" + matchArray.Aggregate(text, (current, match) 
-                => current.Replace(match.Value, "\"" + aOrangeStart.Insert(
-                                                         3, $"href=\"#post{match.Value.Substring(2, match.Value.Length - 2)}\" ") 
-                                                     + match.Value + aEnd + "\"")) + "\"";
-
-            var matchArrayGreen = greenStrings as Match[] ?? greenStrings.ToArray();
-            text = "\"" + matchArrayGreen.Aggregate(text, (current, match) 
-                => current.Replace(match.Value, "\"" + aGreenStart + match.Value + aEnd + "\"")) + "\"";
-
-            var withOutQuotationMarks = GetTextWithoutQuotationMarks(text);
-
-            if (withOutQuotationMarks.Any())
-                text = text.Substring(1, text.Length - 2);
-            
-            return text;
-            
-            // return matchArray.Select(match 
-            //     => int.Parse(match.Value.Substring(2, match.Value.Length - 2))).ToList();
-        }
-
-        private static IEnumerable<Match> GetAnswerIdsStrings(string text)
-        {
-            var regex = new Regex(@">>\d+");
-            var matches = regex.Matches(text);
-
-            return matches.ToList();
-        }
-
-        private static IEnumerable<Match> GetGreenTextStrings(string text)
-        {
-            var regex = new Regex(">^.+$", RegexOptions.Multiline);
-            var matches = regex.Matches(text);
-
-            return matches.ToList();
-        }
-
-        private static IEnumerable<Match> GetTextWithoutQuotationMarks(string text)
-        {
-            var regexFirst = new Regex("^\"+");
-            var regexSecond = new Regex("\"+$");
-            var matches = regexFirst.Matches(text);
-            
-            matches = (MatchCollection) matches.Concat(regexSecond.Matches(text));
-
-            return matches.ToList();
-        }
+        // private static string ReworkTextPost(string text)
+        // {
+        //     const string spanStart = "<span style=\"color: #ff6600\">";
+        //     const string spanEnd = "</span>";
+        //     const string aStart = "<a style\"color: #008000\">";
+        //     const string aEnd = "</a>";
+        //
+        //     var matchArray = matches as Match[] ?? matches.ToArray();
+        //     text = matchArray.Aggregate(text, (current, match) 
+        //         => current.Replace(match.Value, aStart.Insert(3, 
+        //                 $"href=\"#post{match.Value.Substring(8, match.Value.Length - 8)}\" ") 
+        //                                         + match.Value + aEnd));
+        //
+        //     var matchArrayGreen = greenStrings as Match[] ?? greenStrings.ToArray();
+        //     text = matchArrayGreen.Aggregate(text, (current, match) 
+        //         => current.Replace(match.Value, spanStart + match.Value + spanEnd));
+        //
+        //     return text;
+        // }
     }
 }
