@@ -23,3 +23,18 @@ function countSymbols(textForm) {
     let counter = $('#countOfSymbols');
     counter.text(5000 - textForm.value.length);
 }
+
+function setTextTag(tagStart, tagEnd) { // Не работает мразина... :с
+    let textForm = $('#textPost');
+    
+    let selectedText = window.getSelection(); 
+    let range = selectedText.getRangeAt(0);
+    
+    textForm.text(
+        textForm.val().slice(0, range.startOffset) + 
+        tagStart + 
+        selectedText.toString() +
+        tagEnd +
+        textForm.val().slice(range.endOffset)
+    );
+}

@@ -23,16 +23,23 @@ namespace QuietPlaceWebProject.Helpers
             for (var i = 0; i < divs.Length; ++i)
                 divs[i] = GetTagBuilder("div", null, classAttribute);
 
-            tools[0] = GetTagBuilder("b", "BOLD");
-            tools[1] = GetTagBuilder("i", "ITALIC");
+            tools[0] = GetTagBuilder("b", "BOLD", 
+                new KeyValuePair<string, string>("onclick", "setTextTag(\'<b>\', \'</b>\')"));
+            tools[1] = GetTagBuilder("i", "ITALIC", 
+                new KeyValuePair<string, string>("onclick" , "setTextTag(\'<i>\', \'</i>\')"));
             tools[2] = GetTagBuilder("div", "UNDERLINE", styleAttributes[0]);
+            tools[2].Attributes.Add(new KeyValuePair<string, string>("onclick", "setTextTag(\'<ul>\', \'</ul>\')"));
             tools[3] = GetTagBuilder("div", "OVERLINE", styleAttributes[1]);
+            tools[3].Attributes.Add(new KeyValuePair<string, string>("onclick", "setTextTag(\'<ol>\', \'</ol>\')"));
             tools[4] = GetTagBuilder("div", "LINE-THROUGH", styleAttributes[2]);
+            tools[4].Attributes.Add(new KeyValuePair<string, string>("onclick", "setTextTag(\'<lt>\', \'</lt>\')"));
             tools[5] = GetTagBuilder("div", "SPOILER", 
                 new KeyValuePair<string, string>("onmouseenter", "unspoiler(this)"));
             tools[5].AddCssClass("spoiler");
             tools[5].Attributes.Add(new KeyValuePair<string, string>("onmouseout", "spoiler(this)"));
-
+            tools[5].Attributes.Add(
+                new KeyValuePair<string, string>("onclick", "setTextTag(\'<spoiler>\', \'</spoiler>\')"));
+            
             for (var i = 0; i < divs.Length; ++i)
             {
                 divs[i].InnerHtml = tools[i].ToString();
@@ -42,7 +49,7 @@ namespace QuietPlaceWebProject.Helpers
             return new HtmlString(row.ToString());
         }
 
-        private static TagBuilder GetTagBuilder(string tagName, string innerText = null,
+        private static TagBuilder GetTagBuilder(string tagName, string innerText,
             KeyValuePair<string, string> attribute = default)
         {
             var tagBuilder = new TagBuilder(tagName);

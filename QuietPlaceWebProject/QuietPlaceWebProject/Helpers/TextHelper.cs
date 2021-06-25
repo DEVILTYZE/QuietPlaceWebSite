@@ -10,43 +10,64 @@ namespace QuietPlaceWebProject.Helpers
     {
         public static HtmlString BuildText(string text)
         {
-            var answerIdsStrings = GetAnswerIdsStrings(text);
-            var greenStrings = GetGreenTextStrings(text);
+            var answerIdsStrings = GetStringsWithRegex(text, @">>\d+");
+            var greenStrings = GetStringsWithRegex(text, @"^>.+", 
+                RegexOptions.Multiline);
+            var underlineStrings = GetStringsWithRegex(text, "<u>.</u>");
+            var overlineStrings = GetStringsWithRegex(text, "<o>.</o>");
+            var lineThroughStrings = GetStringsWithRegex(text, "<lt>.</lt>");
+            var spoilerStrings = GetStringsWithRegex(text, "<spoiler>.</spoiler>");
 
-            foreach (var match in answerIdsStrings)
-            {
-                var tagABuilder = new TagBuilder("a");
-                tagABuilder.Attributes.Add(new KeyValuePair<string, string>("style", "color: #ff6600"));
-                tagABuilder.SetInnerText(match.Value);
-                tagABuilder.Attributes.Add(new KeyValuePair<string, string>("href", 
-                    $"#post {match.Value.Substring(2, match.Value.Length - 2)}"));
+            text = GetTextWithTag(text, underlineStrings, "div",
+                new KeyValuePair<string, string>("style", $"text-decoration: underline"));
+            
+            text = GetTextWithTag(text, overlineStrings, "div",
+                new KeyValuePair<string, string>("style", $"text-decoration: overline"));
+            
+            text = GetTextWithTag(text, lineThroughStrings, "div",
+                new KeyValuePair<string, string>("style", $"text-decoration: line-though"));
+            
+            text = GetTextWithTag(text, spoilerStrings, "div",
+                new KeyValuePair<string, string>("onmouseenter", "unspoiler(this)"));
+            
+            text = GetTextWithTag(text, answerIdsStrings, "a",
+                new KeyValuePair<string, string>("style", "color: #ff6600"), true);
 
-                text = text.Replace(match.Value, tagABuilder.ToString(TagRenderMode.Normal));
-            }
-
-            foreach (var match in greenStrings)
-            {
-                var tagSpanBuilder = new TagBuilder("span");
-                tagSpanBuilder.Attributes.Add(new KeyValuePair<string, string>("style", "color: #008000"));
-                tagSpanBuilder.SetInnerText(match.Value);
-                
-                text = text.Replace(match.Value, tagSpanBuilder.ToString(TagRenderMode.Normal));
-            }
+            text = GetTextWithTag(text, greenStrings, "span",
+                new KeyValuePair<string, string>("style", "color: #008000"));
 
             return new HtmlString(text);
         }
-        
-        private static IEnumerable<Match> GetAnswerIdsStrings(string text)
-        {
-            var regex = new Regex(@">>\d+");
-            var matches = regex.Matches(text);
 
-            return matches.ToList();
+        private static string GetTextWithTag(string text, IEnumerable<Match> matches, string tag,
+            KeyValuePair<string, string> attribute, bool isHref = false, bool isSpoiler = false)
+        {
+            foreach (var match in matches)
+            {
+                var tagBuilder = new TagBuilder(tag);
+                tagBuilder.Attributes.Add(attribute);
+                tagBuilder.SetInnerText(match.Value);
+                
+                if (isHref)
+                    tagBuilder.Attributes.Add(new KeyValuePair<string, string>("href", 
+                        $"#post {match.Value.Substring(2, match.Value.Length - 2)}"));
+                
+                if (isSpoiler)
+                {
+                    tagBuilder.AddCssClass("spoiler");
+                    tagBuilder.Attributes.Add(new KeyValuePair<string, string>("onmouseout", "spoiler(this)"));
+                }
+
+                text = text.Replace(match.Value, tagBuilder.ToString(TagRenderMode.Normal));
+            }
+
+            return text;
         }
 
-        private static IEnumerable<Match> GetGreenTextStrings(string text)
+        private static IEnumerable<Match> GetStringsWithRegex(string text, string regexPattern, 
+            RegexOptions option = RegexOptions.Singleline)
         {
-            var regex = new Regex(@"^>.+", RegexOptions.Multiline);
+            var regex = new Regex(regexPattern, option);
             var matches = regex.Matches(text);
 
             return matches.ToList();
