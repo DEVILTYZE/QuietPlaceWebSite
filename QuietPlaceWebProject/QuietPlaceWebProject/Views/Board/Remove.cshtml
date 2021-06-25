@@ -7,7 +7,7 @@
 
 <h1>@ViewBag.Title</h1>
 
-<hr />
+<br>
 <div class="container">
     <div class="row">
         <div class="col-sm">
@@ -17,7 +17,9 @@
             <form asp-action="Remove" method="Post">
                 <input type="hidden" name="boardId" asp-for="Id" />
                 <input type="submit" value="Удалить" class="btn btn-default"/>
-                <a asp-action="Threads" asp-controller="Thread" asp-route-boardId="@Model" class="btn btn-default">Отмена</a>
+                <a asp-action="Edit" asp-route-boardId="@Model.Id" class="btn btn-default">
+                    Отмена
+                </a>
             </form>
         </div>
     </div>

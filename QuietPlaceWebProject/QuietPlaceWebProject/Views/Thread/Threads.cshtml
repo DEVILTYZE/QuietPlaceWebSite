@@ -11,12 +11,14 @@
             <h1>@ViewBag.Name</h1>
         </td>
         <td>
-            <a asp-action="Edit" asp-controller="Board" asp-route-boardId="@ViewBag.BoardId" class="btn btn-default" method="get">
+            <a asp-action="Edit" asp-controller="Board" asp-route-boardId="@ViewBag.BoardId" 
+               class="btn btn-default" method="get">
                 Редактировать доску
             </a>
         </td>
         <td>
-            <a asp-action="Create" asp-controller="Thread" asp-route-boardId="@ViewBag.BoardId" class="btn btn-default" method="get">
+            <a asp-action="Create" asp-controller="Thread" asp-route-boardId="@ViewBag.BoardId" 
+               class="btn btn-default" method="get">
                 Создать новый тред
             </a>
         </td>
@@ -40,3 +42,8 @@
         }
     </div>
 </div>
+
+@if (ViewBag.NotifyIsEnabled is not null && ViewBag.NotifyIsEnabled)
+{
+    <script src="js/sendNotification.js"></script>
+}

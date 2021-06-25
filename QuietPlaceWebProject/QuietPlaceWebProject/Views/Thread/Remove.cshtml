@@ -10,15 +10,16 @@
 <hr />
 <div class="container">
     <div class="row">
-        <div class="col-sm">
-            <h2>Вы точно хотите удалить @Model.Name?</h2>
-            <hr />
-            
-            <form asp-action="Remove" method="Post">
-                <input type="hidden" name="threadId" asp-for="Id" />
-                <input type="submit" value="Удалить" class="btn btn-default"/>
-                <a asp-action="Posts" asp-controller="Post" asp-route-threadId="@Model.Id" class="btn btn-default">Отмена</a>
-            </form>
-        </div>
+        <h2>Вы точно хотите удалить @Model.Name?</h2>
+        <hr />
+    </div>
+    <div class="row">
+        <form asp-action="Remove" method="Post">
+            <input type="hidden" name="threadId" asp-for="Id" />
+            <input type="submit" value="Удалить" class="btn btn-default"/>
+            <a asp-action="Posts" asp-controller="Post" asp-route-threadId="@Model.Id" class="btn btn-default">
+                Отмена
+            </a>
+        </form>
     </div>
 </div>

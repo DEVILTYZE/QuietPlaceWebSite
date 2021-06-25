@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mime;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using QuietPlaceWebProject.Helpers;
 using QuietPlaceWebProject.Models;
 
 namespace QuietPlaceWebProject.Controllers
@@ -28,6 +24,9 @@ namespace QuietPlaceWebProject.Controllers
             if (threadId is null)
                 return NotFound();
             
+            if (TempData is not null)
+                ViewBag.NotifyIsEnabled = TempData["NotifyIsEnabled"] as bool? ?? false;
+            
             var posts = _dbBoard.Posts.Where(post => post.ThreadId == threadId).ToList();
             var thread = await _dbBoard.Threads.FindAsync(threadId);
             ViewBag.ThreadId = threadId;
@@ -46,14 +45,12 @@ namespace QuietPlaceWebProject.Controllers
             var posters = _dbUser.Users.Where(localUser => localUser.IpAddress == ipAddressOfUser).ToList();
             var posterId = posters.Count == 1 ? posters.First().Id : -1;
             var answerId = TempData["AnswerId"] as int? ?? -1;
-            
-            // var posterId = TempData["PosterId"] as int? ?? -1;
-
-            if (answerId != -1)
-                TempData["TextPost"] = "&gt;&gt;" + answerId + "\r\n" + TempData["TextPost"];
 
             if (posterId == -1)
                 return RedirectToAction("Create", "Anon", new { threadId });
+            
+            if (answerId != -1)
+                ViewBag.AnswerPost = ">>" + answerId + "\n";
 
             var isOriginalPoster = TempData["IsOP"] as bool? ?? false;
 
@@ -84,13 +81,17 @@ namespace QuietPlaceWebProject.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([Bind("Id, Text, DateOfCreation, PosterId, PostOfTovarishchId, IsOriginalPoster, ThreadId")]
-            Post post)
+        public async Task<IActionResult> Create(
+            [Bind("Id, Text, DateOfCreation, PosterId, PostOfTovarishchId, IsOriginalPoster, ThreadId")]
+            Post post, string textPost)
         {
             post.DateOfCreation = DateTime.Now;
             post.IsOriginalPoster = IsOriginalPoster(post.PosterId, post.ThreadId);
-
-            if (!ModelState.IsValid)
+            
+            if (!string.IsNullOrEmpty(textPost) || !string.IsNullOrWhiteSpace(textPost))
+                post.Text = textPost.Trim();
+            
+            if (!ModelState.IsValid && post.Text.Length > 0)
             {
                 ViewBag.ThreadId = post.ThreadId;
                 ViewBag.PosterId = post.PosterId;
@@ -100,6 +101,7 @@ namespace QuietPlaceWebProject.Controllers
 
             _dbBoard.Posts.Add(post);
             await _dbBoard.SaveChangesAsync();
+            TempData["NotifyIsEnabled"] = true;
 
             return RedirectToAction(nameof(Posts), new { threadId = post.ThreadId });
         }
@@ -124,6 +126,7 @@ namespace QuietPlaceWebProject.Controllers
             var post = await _dbBoard.Posts.FindAsync(postId);
             _dbBoard.Posts.Remove(post);
             await _dbBoard.SaveChangesAsync();
+            TempData["NotifyIsEnabled"] = true;
 
             return RedirectToAction(nameof(Posts), new { post.ThreadId });
         }
@@ -135,25 +138,5 @@ namespace QuietPlaceWebProject.Controllers
 
             return RedirectToAction(nameof(Create), new { threadId });
         }
-
-        // private static string ReworkTextPost(string text)
-        // {
-        //     const string spanStart = "<span style=\"color: #ff6600\">";
-        //     const string spanEnd = "</span>";
-        //     const string aStart = "<a style\"color: #008000\">";
-        //     const string aEnd = "</a>";
-        //
-        //     var matchArray = matches as Match[] ?? matches.ToArray();
-        //     text = matchArray.Aggregate(text, (current, match) 
-        //         => current.Replace(match.Value, aStart.Insert(3, 
-        //                 $"href=\"#post{match.Value.Substring(8, match.Value.Length - 8)}\" ") 
-        //                                         + match.Value + aEnd));
-        //
-        //     var matchArrayGreen = greenStrings as Match[] ?? greenStrings.ToArray();
-        //     text = matchArrayGreen.Aggregate(text, (current, match) 
-        //         => current.Replace(match.Value, spanStart + match.Value + spanEnd));
-        //
-        //     return text;
-        // }
     }
 }

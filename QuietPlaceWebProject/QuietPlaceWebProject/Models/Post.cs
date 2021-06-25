@@ -12,7 +12,6 @@ namespace QuietPlaceWebProject.Models
         [HiddenInput(DisplayValue = false)]
         public int Id { get; init; }
         
-        [Required]
         [StringLength(5000, ErrorMessage = "Текст поста не должен превышать 5000 символов.")]
         [Display(Name = "Текст: ")]
         public string Text { get; set; }

@@ -72,3 +72,22 @@ body {
 
 /* TextBoxes
 -------------------------------------------------- */
+.div-post {
+  height: auto;
+  max-height: 650px;
+  overflow: auto;
+  resize: none;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  border: black;
+}
+
+.spoiler {
+  color: #6c757d;
+  background-color: #6c757d;
+}
+
+.unspoiler {
+  color: black;
+  background-color: white;
+}

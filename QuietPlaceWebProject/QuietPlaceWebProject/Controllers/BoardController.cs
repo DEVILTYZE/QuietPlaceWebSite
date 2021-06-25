@@ -25,10 +25,7 @@ namespace QuietPlaceWebProject.Controllers
         public IActionResult Boards()
         {
             if (TempData is not null)
-            {
                 ViewBag.NotifyIsEnabled = TempData["NotifyIsEnabled"] as bool? ?? false;
-                ViewBag.TextNotification = (string) TempData["TextNotification"] ?? string.Empty;
-            }
             
             var boards = _dbBoard.Boards.ToList();
 
@@ -48,6 +45,7 @@ namespace QuietPlaceWebProject.Controllers
             Board board)
         {
             ViewBag.Roles = new SelectList(_dbUser.Roles, "Id", "Name");
+            board.Name = board.Name.Trim();
             
             if (!ModelState.IsValid) 
                 return View(board);
@@ -72,8 +70,8 @@ namespace QuietPlaceWebProject.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit([Bind("Id, Name, DomainName, MaxCountOfThreads, IsHidden, AccessRoleId")]
-            Board board)
+        public async Task<IActionResult> Edit(
+            [Bind("Id, Name, DomainName, MaxCountOfThreads, IsHidden, AccessRoleId")] Board board)
         {
             if (!ModelState.IsValid)
             {
@@ -84,7 +82,6 @@ namespace QuietPlaceWebProject.Controllers
 
             try
             {
-                // _dbBoard.Boards.Update(board);
                 _dbBoard.Entry(board).State = EntityState.Modified;
                 await _dbBoard.SaveChangesAsync();
             }
@@ -150,13 +147,13 @@ namespace QuietPlaceWebProject.Controllers
                 DomainName = "/dib/",
                 MaxCountOfThreads = 20,
                 IsHidden = false,
-                AccessRoleId = 0
+                AccessRoleId = 1
             };
 
             var defaultPasscode = new Passcode
             {
                 Code = "adm1n",
-                RoleId = 0
+                RoleId = 1
             };
 
             var defaultRole = new Role

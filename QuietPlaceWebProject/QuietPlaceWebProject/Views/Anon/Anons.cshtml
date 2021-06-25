@@ -1,0 +1,60 @@
+﻿@model IEnumerable<IUser>
+
+@{
+    ViewBag.Title = "Анонимы";
+    Layout = "_Layout";
+}
+
+<h1>@ViewBag.Title</h1>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm">ID</div>
+        <div class="col-sm">IP-адрес</div>
+        <div class="col-sm">Роль</div>
+        <div class="col-sm">Пасскод</div>
+        <div class="col-sm">Статус</div>
+        <div class="col-sm">Действие</div>
+    </div>
+    @{
+        var roles = (Dictionary<int, string>) ViewBag.Roles;
+        
+        foreach (var user in Model)
+        {
+            var passcode = ((List<Passcode>) ViewBag.Passcodes).Find(localPasscode 
+                => localPasscode.Id == user.PasscodeId);
+
+            <div class="row">
+                <div class="col-sm">
+                    @user.Id
+                </div>
+                <div class="col-sm">
+                    @user.IpAddress
+                </div>
+                <div class="col-sm">
+                    @if (passcode is not null)
+                    {
+                        @roles[passcode.RoleId]
+                    }
+                </div>
+                <div class="col-sm">
+                    @passcode?.Code
+                </div>
+                @if (user.IsBanned)
+                {
+                    <div class="col-sm">Забанен</div>
+                    <div class="col-sm">
+                        <a asp-action="BanUnBan" asp-route-userId="@user.Id" asp-route-isBan="false">Разбанить</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-sm">Активен</div>
+                    <div class="col-sm">
+                        <a asp-action="BanUnBan" asp-route-userId="@user.Id" asp-route-isBan="true">Забанить</a>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>

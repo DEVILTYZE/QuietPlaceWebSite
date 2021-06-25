@@ -22,6 +22,9 @@ namespace QuietPlaceWebProject.Controllers
             if (boardId is null)
                 return NotFound();
             
+            if (TempData is not null)
+                ViewBag.NotifyIsEnabled = TempData["NotifyIsEnabled"] as bool? ?? false;
+            
             var threads = _dbBoard.Threads.Where(thread => thread.BoardId == boardId).ToList();
             var board = _dbBoard.Boards.Find(boardId);
             ViewBag.FullName = board.DomainName + " — " + board.Name;
@@ -50,6 +53,7 @@ namespace QuietPlaceWebProject.Controllers
             Thread thread, string textPost)
         {
             thread.HasBumpLimit = true;
+            thread.Name = thread.Name.Trim();
             
             if (!ModelState.IsValid)
             {
@@ -59,7 +63,7 @@ namespace QuietPlaceWebProject.Controllers
                 return View(thread);
             }
             
-            TempData["TextPost"] = textPost;
+            TempData["TextPost"] = textPost.Trim();
             TempData["IsOP"] = true;
 
             await _dbBoard.Threads.AddAsync(thread);

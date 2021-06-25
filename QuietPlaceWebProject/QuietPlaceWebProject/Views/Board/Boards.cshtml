@@ -33,8 +33,5 @@
 
 @if (ViewBag.NotifyIsEnabled is not null && ViewBag.NotifyIsEnabled)
 {
-    //<script> $.when($.getScript('@Url.Content("~/js/")sendNotification.js')) </script>
     <script src="js/sendNotification.js"></script>
-    //<script type="application/javascript">
-        //sendNotification("Результат", {body: 'ViewBag.TextNotification', dir: 'auto', icon: 'Url.Content("~/images/")notification.jpg' })
 }
