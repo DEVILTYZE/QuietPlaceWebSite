@@ -1,5 +1,5 @@
 ﻿
-sendNotification('Результат действия:', { body: 'Успешно!', dir: 'rtl', icon: '/images/notification.png'});
+sendNotification('Результат действия:', { body: 'Успешно!', dir: 'rtl', icon: '/images/img.png'});
 
 function sendNotification(title, options) {
     // Проверка поддержки браузером уведомлений

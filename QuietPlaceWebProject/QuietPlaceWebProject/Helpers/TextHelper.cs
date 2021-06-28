@@ -34,60 +34,61 @@ namespace QuietPlaceWebProject.Helpers
                 new KeyValuePair<string, string>("style", "color: #008000"), false);
             
             // Жирный (пример: "[b]жирный[/b]").
-            var boldStrings = GetStringsWithRegex(text, @"\[b\].*\[/b\]");
+            var boldStrings = GetTagStrings(text, "[b]", "[/b]");
             text = GetTextWithTag(text, boldStrings, "b", new KeyValuePair<string, string>("", ""));
 
             // Курсив (пример: "[i]курсив[/i]").
-            var italicStrings = GetStringsWithRegex(text, @"\[i\].*\[/i\]");
+            var italicStrings = GetTagStrings(text, "[i]", "[/i]");
             text = GetTextWithTag(text, italicStrings, "i", new KeyValuePair<string, string>("", ""));
             
             // Подчёркнутый (пример: "[ul]подчёркнутый[/ul]").
-            var underlineStrings = GetStringsWithRegex(text, @"\[ul\].*\[/ul\]");
-            text = GetTextWithTag(text, underlineStrings, "div",
+            var underlineStrings = GetTagStrings(text, "[ul]", "[/ul]");
+            text = GetTextWithTag(text, underlineStrings, "span",
                 new KeyValuePair<string, string>("style", "text-decoration: underline"));
             
             // Надчёркнутый (пример: "[ol]надчёркнутый[/ol]").
-            var overlineStrings = GetStringsWithRegex(text, @"\[ol\].*\[/ol\]");
-            text = GetTextWithTag(text, overlineStrings, "div",
+            var overlineStrings = GetTagStrings(text, "[ol]", "[/ol]");
+            text = GetTextWithTag(text, overlineStrings, "span",
                 new KeyValuePair<string, string>("style", "text-decoration: overline"));
             
             // Зачёркнутый (пример: "[lt]зачёркнутый[/lt]").
-            var lineThroughStrings = GetStringsWithRegex(text, @"\[lt\].*\[/lt\]");
-            text = GetTextWithTag(text, lineThroughStrings, "div",
+            var lineThroughStrings = GetTagStrings(text, "[lt]", "[/lt]");
+            text = GetTextWithTag(text, lineThroughStrings, "span",
                 new KeyValuePair<string, string>("style", "text-decoration: line-through"));
             
             // Спойлер (пример: "[spoiler]спойлер[/spoiler]").
-            var spoilerStrings = GetStringsWithRegex(text, @"\[spoiler\].*\[/spoiler\]");
-            text = GetTextWithTag(text, spoilerStrings, "div",
-                new KeyValuePair<string, string>("onmouseenter", "unspoiler(this)"), 
+            var spoilerStrings = GetTagStrings(text, "[spoiler]", "[/spoiler]");
+            text = GetTextWithTag(text, spoilerStrings, "span",
+                new KeyValuePair<string, string>("onmouseenter", "changeClass(this, 'unspoiler', 'spoiler')"), 
                 true, false, true);
             
             return new HtmlString(text);
         }
 
-        private static string GetTextWithTag(string text, IEnumerable<Match> matches, string tag,
+        private static string GetTextWithTag(string text, IEnumerable<string> list, string tag,
             KeyValuePair<string, string> attribute, bool isDoubleTag = true, bool isHref = false, bool isSpoiler = false)
         {
-            foreach (var match in matches)
+            foreach (var item in list)
             {
                 var tagBuilder = new TagBuilder(tag);
                 
                 if (!string.IsNullOrEmpty(attribute.Key))
                     tagBuilder.Attributes.Add(attribute);
                 
-                tagBuilder.SetInnerText(isDoubleTag ? GetValue(match.Value) : match.Value);
+                tagBuilder.SetInnerText(isDoubleTag ? GetValueOfTagString(item) : item);
                 
                 if (isHref)
                     tagBuilder.Attributes.Add(new KeyValuePair<string, string>("href", 
-                        $"#post {match.Value.Substring(2, match.Value.Length - 2)}"));
+                        $"#post {item.Substring(2, item.Length - 2)}"));
                 
                 if (isSpoiler)
                 {
                     tagBuilder.AddCssClass("spoiler");
-                    tagBuilder.Attributes.Add(new KeyValuePair<string, string>("onmouseout", "spoiler(this)"));
+                    tagBuilder.Attributes.Add(new KeyValuePair<string, string>("onmouseout", 
+                        "changeClass(this, 'spoiler', 'unspoiler')"));
                 }
 
-                text = text.Replace(match.Value, tagBuilder.ToString(TagRenderMode.Normal));
+                text = text.Replace(item, tagBuilder.ToString(TagRenderMode.Normal));
                 text = text.Replace("&gt;", ">").Replace("&lt;", "<").Replace(
                     "&quot;", "\"");
             }
@@ -95,21 +96,48 @@ namespace QuietPlaceWebProject.Helpers
             return text;
         }
 
-        private static string GetValue(string matchValue)
+        private static string GetValueOfTagString(string tagString)
         {
-            var startIndex = matchValue.IndexOf(']') + 1;
-            var length = matchValue.LastIndexOf('[') - startIndex;
+            var startIndex = tagString.IndexOf(']') + 1;
+            var length = tagString.LastIndexOf('[') - startIndex;
 
-            return matchValue.Substring(startIndex, length);
+            return tagString.Substring(startIndex, length);
         }
 
-        private static IEnumerable<Match> GetStringsWithRegex(string text, string regexPattern, 
+        private static IEnumerable<string> GetStringsWithRegex(string text, string regexPattern, 
             RegexOptions option = RegexOptions.Singleline)
         {
+            var result = new List<string>();
             var regex = new Regex(regexPattern, option);
             var matches = regex.Matches(text);
 
-            return matches.ToList();
+            foreach (Match match in matches)
+                result.Add(match.Value);
+            
+            return result;
+        }
+
+        private static IEnumerable<string> GetTagStrings(string text, string tagStart, string tagEnd)
+        {
+            var result = new List<string>();
+            var indexOfEnd = 0;
+
+            while (true)
+            {
+                var indexOfStart = text.IndexOf(tagStart, indexOfEnd, StringComparison.Ordinal);
+
+                if (indexOfStart == -1)
+                    break;
+
+                indexOfEnd = text.IndexOf(tagEnd, indexOfStart, StringComparison.Ordinal);
+
+                if (indexOfEnd == -1)
+                    break;
+                
+                result.Add(text.Substring(indexOfStart, indexOfEnd - indexOfStart + tagEnd.Length));
+            }
+
+            return result;
         }
     }
 }

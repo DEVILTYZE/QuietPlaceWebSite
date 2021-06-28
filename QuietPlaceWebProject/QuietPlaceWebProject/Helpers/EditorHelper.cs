@@ -6,6 +6,46 @@ namespace QuietPlaceWebProject.Helpers
 {
     public static class EditorHelper
     {
+        public static HtmlString BuildMediafileTool()
+        {
+            var img = new TagBuilder("img");
+            img.Attributes.Add(new KeyValuePair<string, string>("src", 
+                "@Url.Content(\"~/images/\")img.png"));
+
+            var div = new TagBuilder("div");
+
+            var input = new TagBuilder("input");
+            input.Attributes.Add(new KeyValuePair<string, string>("type", "file"));
+
+            var label = new TagBuilder("label");
+            label.Attributes.Add(new KeyValuePair<string, string>("for", "file-input"));
+            label.SetInnerText("Выберите файл");
+
+            var span = new TagBuilder("div");
+            span.SetInnerText("или перетащите его сюда");
+
+            div.InnerHtml += input.ToString(TagRenderMode.SelfClosing);
+            div.InnerHtml += label.ToString();
+            div.InnerHtml += span.ToString();
+
+            var mainDiv = new TagBuilder("div");
+            mainDiv.AddCssClass("upload-container");
+            mainDiv.Attributes.Add(new KeyValuePair<string, string>(
+                "ondragenter", "changeClass(this, 'dragover', '')"));
+            mainDiv.Attributes.Add(new KeyValuePair<string, string>(
+                "ondragleave", "changeClass(this, '', 'dragover')"));
+            mainDiv.Attributes.Add(new KeyValuePair<string, string>(
+                "ondrop", "return loadFile(event)"));
+            mainDiv.InnerHtml += img.ToString(TagRenderMode.SelfClosing);
+            mainDiv.InnerHtml += div.ToString();
+
+            var row = new TagBuilder("div");
+            row.AddCssClass("row");
+            row.InnerHtml += mainDiv.ToString();
+
+            return new HtmlString(row.ToString());
+        }
+        
         public static HtmlString BuildEditorTools()
         {
             var row = new TagBuilder("div");
@@ -34,9 +74,10 @@ namespace QuietPlaceWebProject.Helpers
             tools[4] = GetTagBuilder("div", "LINE-THROUGH", styleAttributes[2]);
             tools[4].Attributes.Add(new KeyValuePair<string, string>("onclick", "setTextTag(\'[lt]\', \'[/lt]\')"));
             tools[5] = GetTagBuilder("div", "SPOILER", 
-                new KeyValuePair<string, string>("onmouseenter", "unspoiler(this)"));
+                new KeyValuePair<string, string>("onmouseenter", "changeClass(this, 'unspoiler', 'spoiler')"));
             tools[5].AddCssClass("spoiler");
-            tools[5].Attributes.Add(new KeyValuePair<string, string>("onmouseout", "spoiler(this)"));
+            tools[5].Attributes.Add(new KeyValuePair<string, string>(
+                "onmouseout", "changeClass(this, 'spoiler', 'unspoiler')"));
             tools[5].Attributes.Add(
                 new KeyValuePair<string, string>("onclick", "setTextTag(\'[spoiler]\', \'[/spoiler]\')"));
             

@@ -21,20 +21,14 @@ function setCaretToPos (input, pos) {
     setSelectionRange(input, pos, pos);
 }
 
-function spoiler(text) {
-    if (text.classList.contains('unspoiler')) {
-        text.classList.remove('unspoiler');
+function changeClass(text, setClassName, removeClassName) {
+    if (removeClassName.length > 0) {
+        text.classList.remove(removeClassName);
     }
 
-    text.classList.add('spoiler');
-}
-
-function unspoiler(text) {
-    if (text.classList.contains('spoiler')) {
-        text.classList.remove('spoiler');
+    if (setClassName.length > 0) {
+        text.classList.add(setClassName);
     }
-
-    text.classList.add('unspoiler');
 }
 
 function countSymbols(textForm) {
@@ -83,4 +77,9 @@ function setTextTag(tagStart, tagEnd) { // РАБОТАЕТ, НАКОНЕЦ-ТО
     
     setCaretToPos(textForm, tagStart.length + startOffset);
     countSymbols(textForm);
+}
+
+function loadFile(event) {
+    let data = event.dataTransfer.getData("text");
+    alert(data);
 }
