@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
@@ -8,35 +9,59 @@ namespace QuietPlaceWebProject.Helpers
 {
     public static class TextHelper
     {
+        public static string RemoveTags(string text)
+        {
+            var tags = new[] {"[b]", "[/b]", "[i]", "[/i]", "[ul]", "[/ul]", "[ol]", "[/ol]", "[lt]", "[/lt]",
+                "[spoiler]", "[/spoiler]"};
+
+            text = tags.Aggregate(text, (current, t) 
+                => current.Replace(t, string.Empty));
+
+            return text;
+        }
+        
         public static HtmlString BuildText(string text)
         {
+            // Ответы (пример: ">>1").
             var answerIdsStrings = GetStringsWithRegex(text, @">>\d+", RegexOptions.None);
+            text = GetTextWithTag(text, answerIdsStrings, "a",
+                new KeyValuePair<string, string>("style", "color: #ff6600"), false, true);
+            
+            // Гринтекст (пример: ">текст").
             var greenStrings = GetStringsWithRegex(text, @"^>.+", 
                 RegexOptions.Multiline);
-            var underlineStrings = GetStringsWithRegex(text, "<ul>.*</ul>");
-            var overlineStrings = GetStringsWithRegex(text, "<ol>.*</ol>");
-            var lineThroughStrings = GetStringsWithRegex(text, "<lt>.*</lt>");
-            var spoilerStrings = GetStringsWithRegex(text, "<spoiler>.*</spoiler>");
+            text = GetTextWithTag(text, greenStrings, "span",
+                new KeyValuePair<string, string>("style", "color: #008000"), false);
+            
+            // Жирный (пример: "[b]жирный[/b]").
+            var boldStrings = GetStringsWithRegex(text, @"\[b\].*\[/b\]");
+            text = GetTextWithTag(text, boldStrings, "b", new KeyValuePair<string, string>("", ""));
 
+            // Курсив (пример: "[i]курсив[/i]").
+            var italicStrings = GetStringsWithRegex(text, @"\[i\].*\[/i\]");
+            text = GetTextWithTag(text, italicStrings, "i", new KeyValuePair<string, string>("", ""));
+            
+            // Подчёркнутый (пример: "[ul]подчёркнутый[/ul]").
+            var underlineStrings = GetStringsWithRegex(text, @"\[ul\].*\[/ul\]");
             text = GetTextWithTag(text, underlineStrings, "div",
-                new KeyValuePair<string, string>("style", $"text-decoration: underline"));
+                new KeyValuePair<string, string>("style", "text-decoration: underline"));
             
+            // Надчёркнутый (пример: "[ol]надчёркнутый[/ol]").
+            var overlineStrings = GetStringsWithRegex(text, @"\[ol\].*\[/ol\]");
             text = GetTextWithTag(text, overlineStrings, "div",
-                new KeyValuePair<string, string>("style", $"text-decoration: overline"));
+                new KeyValuePair<string, string>("style", "text-decoration: overline"));
             
+            // Зачёркнутый (пример: "[lt]зачёркнутый[/lt]").
+            var lineThroughStrings = GetStringsWithRegex(text, @"\[lt\].*\[/lt\]");
             text = GetTextWithTag(text, lineThroughStrings, "div",
-                new KeyValuePair<string, string>("style", $"text-decoration: line-through"));
+                new KeyValuePair<string, string>("style", "text-decoration: line-through"));
             
+            // Спойлер (пример: "[spoiler]спойлер[/spoiler]").
+            var spoilerStrings = GetStringsWithRegex(text, @"\[spoiler\].*\[/spoiler\]");
             text = GetTextWithTag(text, spoilerStrings, "div",
                 new KeyValuePair<string, string>("onmouseenter", "unspoiler(this)"), 
                 true, false, true);
             
-            text = GetTextWithTag(text, answerIdsStrings, "a",
-                new KeyValuePair<string, string>("style", "color: #ff6600"), false, true);
-
-            text = GetTextWithTag(text, greenStrings, "span",
-                new KeyValuePair<string, string>("style", "color: #008000"), false);
-
             return new HtmlString(text);
         }
 
@@ -46,7 +71,10 @@ namespace QuietPlaceWebProject.Helpers
             foreach (var match in matches)
             {
                 var tagBuilder = new TagBuilder(tag);
-                tagBuilder.Attributes.Add(attribute);
+                
+                if (!string.IsNullOrEmpty(attribute.Key))
+                    tagBuilder.Attributes.Add(attribute);
+                
                 tagBuilder.SetInnerText(isDoubleTag ? GetValue(match.Value) : match.Value);
                 
                 if (isHref)
@@ -60,7 +88,8 @@ namespace QuietPlaceWebProject.Helpers
                 }
 
                 text = text.Replace(match.Value, tagBuilder.ToString(TagRenderMode.Normal));
-                text = text.Replace("&gt;", ">").Replace("&lt;", "<");
+                text = text.Replace("&gt;", ">").Replace("&lt;", "<").Replace(
+                    "&quot;", "\"");
             }
 
             return text;
@@ -68,8 +97,8 @@ namespace QuietPlaceWebProject.Helpers
 
         private static string GetValue(string matchValue)
         {
-            var startIndex = matchValue.IndexOf('>') + 1;
-            var length = matchValue.LastIndexOf('<') - startIndex;
+            var startIndex = matchValue.IndexOf(']') + 1;
+            var length = matchValue.LastIndexOf('[') - startIndex;
 
             return matchValue.Substring(startIndex, length);
         }

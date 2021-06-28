@@ -43,7 +43,11 @@
     </div>
 </div>
 
-@if (ViewBag.NotifyIsEnabled is not null && ViewBag.NotifyIsEnabled)
-{
-    <script src="js/sendNotification.js"></script>
+@{
+    var notify = ViewBag.NotifyIsEnabled as bool? ?? false;
+    
+    if (notify)
+    {
+        <script src="js/sendNotification.js"></script>
+    }
 }

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QuietPlaceWebProject.Helpers;
 using QuietPlaceWebProject.Models;
 
 namespace QuietPlaceWebProject.Controllers
@@ -87,11 +88,14 @@ namespace QuietPlaceWebProject.Controllers
         {
             post.DateOfCreation = DateTime.Now;
             post.IsOriginalPoster = IsOriginalPoster(post.PosterId, post.ThreadId);
-            
+
             if (!string.IsNullOrEmpty(textPost) || !string.IsNullOrWhiteSpace(textPost))
+            {
                 post.Text = textPost.Trim();
-            
-            if (!ModelState.IsValid && post.Text.Length > 0)
+                textPost = TextHelper.RemoveTags(post.Text);
+            }
+
+            if (!ModelState.IsValid || textPost is null || textPost.Length == 0)
             {
                 ViewBag.ThreadId = post.ThreadId;
                 ViewBag.PosterId = post.PosterId;
