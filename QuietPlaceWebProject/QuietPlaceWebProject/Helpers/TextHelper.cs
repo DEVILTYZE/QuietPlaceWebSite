@@ -59,7 +59,7 @@ namespace QuietPlaceWebProject.Helpers
             // Спойлер (пример: "[spoiler]спойлер[/spoiler]").
             var spoilerStrings = GetTagStrings(text, "[spoiler]", "[/spoiler]");
             text = GetTextWithTag(text, spoilerStrings, "span",
-                new KeyValuePair<string, string>("onmouseenter", "changeClass(this, 'unspoiler', 'spoiler')"), 
+                new KeyValuePair<string, string>("onmouseenter", "changeClass(this, 'spoiler')"), 
                 true, false, true);
             
             return new HtmlString(text);
@@ -84,8 +84,8 @@ namespace QuietPlaceWebProject.Helpers
                 if (isSpoiler)
                 {
                     tagBuilder.AddCssClass("spoiler");
-                    tagBuilder.Attributes.Add(new KeyValuePair<string, string>("onmouseout", 
-                        "changeClass(this, 'spoiler', 'unspoiler')"));
+                    tagBuilder.Attributes.Add(new KeyValuePair<string, string>("onmouseleave", 
+                        "changeClass(this, 'spoiler')"));
                 }
 
                 text = text.Replace(item, tagBuilder.ToString(TagRenderMode.Normal));

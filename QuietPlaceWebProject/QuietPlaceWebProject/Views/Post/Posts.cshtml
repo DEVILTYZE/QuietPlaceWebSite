@@ -73,9 +73,23 @@
 
 @{
     var notify = ViewBag.NotifyIsEnabled as bool? ?? false;
+    var codeOfText = ViewBag.NotifyCode as int? ?? 404;
     
     if (notify)
     {
-        <script src="js/sendNotification.js"></script>
+        <script>
+            window.onload = function () {
+                let text;
+                
+                if (@codeOfText === -1) {
+                    text = 'Пост удалён';
+                } else if (@codeOfText === 1) {
+                    text = 'Пост отправлен';
+                } else {
+                    text = 'NULL';
+                }
+                sendNotification('Результат действия:', { body: text, dir: 'rtl', icon: '/images/img.png'});
+            }
+        </script>
     }
 }

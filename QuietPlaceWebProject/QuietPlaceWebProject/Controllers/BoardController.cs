@@ -25,7 +25,10 @@ namespace QuietPlaceWebProject.Controllers
         public IActionResult Boards()
         {
             if (TempData is not null)
+            {
                 ViewBag.NotifyIsEnabled = TempData["NotifyIsEnabled"] as bool? ?? false;
+                ViewBag.NotifyCode = TempData["NotifyCode"] as int? ?? 404;
+            }
             
             var boards = _dbBoard.Boards.ToList();
 
@@ -41,8 +44,8 @@ namespace QuietPlaceWebProject.Controllers
         }
         
         [HttpPost]
-        public async Task<IActionResult> Create([Bind("Id, Name, DomainName, MaxCountOfThreads, IsHidden, AccessRoleId")]
-            Board board)
+        public async Task<IActionResult> Create(
+            [Bind("Id, Name, DomainName, MaxCountOfThreads, IsHidden, AccessRoleId")] Board board)
         {
             ViewBag.Roles = new SelectList(_dbUser.Roles, "Id", "Name");
             board.Name = board.Name.Trim();
@@ -52,7 +55,7 @@ namespace QuietPlaceWebProject.Controllers
             
             await _dbBoard.Boards.AddAsync(board);
             await _dbBoard.SaveChangesAsync();
-            TempData["NotifyIsEnabled"] = true;
+            SetNotificationInfo(1);
             
             return RedirectToAction(nameof(Boards));
         }
@@ -93,7 +96,7 @@ namespace QuietPlaceWebProject.Controllers
                 throw;
             }
 
-            TempData["NotifyIsEnabled"] = true;
+            SetNotificationInfo(0);
             
             return RedirectToAction(nameof(Boards));
         }
@@ -125,7 +128,7 @@ namespace QuietPlaceWebProject.Controllers
             
             _dbBoard.Boards.Remove(await _dbBoard.Boards.FindAsync(boardId));
             await _dbBoard.SaveChangesAsync();
-            TempData["NotifyIsEnabled"] = true;
+            SetNotificationInfo(-1);
             
             return RedirectToAction(nameof(Boards));
         }
@@ -134,6 +137,12 @@ namespace QuietPlaceWebProject.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier});
+        }
+
+        private void SetNotificationInfo(int code)
+        {
+            TempData["NotifyIsEnabled"] = true;
+            TempData["NotifyCode"] = code;
         }
         
         private void InitialDatabase()

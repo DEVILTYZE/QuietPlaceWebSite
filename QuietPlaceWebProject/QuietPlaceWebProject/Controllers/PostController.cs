@@ -26,7 +26,10 @@ namespace QuietPlaceWebProject.Controllers
                 return NotFound();
             
             if (TempData is not null)
+            {
                 ViewBag.NotifyIsEnabled = TempData["NotifyIsEnabled"] as bool? ?? false;
+                ViewBag.NotifyCode = TempData["NotifyCode"] as int? ?? 404;
+            }
             
             var posts = _dbBoard.Posts.Where(post => post.ThreadId == threadId).ToList();
             var thread = await _dbBoard.Threads.FindAsync(threadId);
@@ -105,7 +108,7 @@ namespace QuietPlaceWebProject.Controllers
 
             _dbBoard.Posts.Add(post);
             await _dbBoard.SaveChangesAsync();
-            TempData["NotifyIsEnabled"] = true;
+            SetNotificationInfo(1);
 
             return RedirectToAction(nameof(Posts), new { threadId = post.ThreadId });
         }
@@ -130,7 +133,7 @@ namespace QuietPlaceWebProject.Controllers
             var post = await _dbBoard.Posts.FindAsync(postId);
             _dbBoard.Posts.Remove(post);
             await _dbBoard.SaveChangesAsync();
-            TempData["NotifyIsEnabled"] = true;
+            SetNotificationInfo(-1);
 
             return RedirectToAction(nameof(Posts), new { post.ThreadId });
         }
@@ -141,6 +144,12 @@ namespace QuietPlaceWebProject.Controllers
             TempData["AnswerId"] = postId;
 
             return RedirectToAction(nameof(Create), new { threadId });
+        }
+
+        private void SetNotificationInfo(int code)
+        {
+            TempData["NotifyIsEnabled"] = true;
+            TempData["NotifyCode"] = code;
         }
     }
 }
