@@ -12,10 +12,10 @@
         <input asp-for="ThreadId" value="@ViewBag.ThreadId" type="hidden" />
         <input asp-for="Text" value="@ViewBag.TextPost" type="hidden"/>
         <script>
-        window.onload = function () {
-            let form = document.getElementById('postForm');
-            form.submit();
-        };
+            window.onload = function () {
+                let form = document.getElementById('postForm');
+                form.submit();
+            };
         </script>
     </form>
 }
@@ -35,11 +35,14 @@ else
                             var text = ViewBag.AnswerPost as string ?? string.Empty;
                             
                             // Справа выводить пост, которому отвечают, если он есть.
-                            <textarea name="textPost" id="textPost" type="text" class="row" cols="75" rows="15" 
-                                placeholder="Ваш ответ..." style="resize: none" autofocus
-                                oninput="countSymbols(this)">@text</textarea>
+                            <div class="row">
+                                <textarea name="textPost" id="textPost" type="text" cols="75" rows="15" 
+                                    placeholder="Ваш ответ..." style="resize: none" autofocus
+                                    oninput="countSymbols(this)">@text</textarea>
+                            </div>
                         }
                         @EditorHelper.BuildMediafileTool()
+                        @EditorHelper.BuildCaptchaTool(ViewBag.CaptchaImage as string ?? "NULL")
                     </div>
                 </div>
             </div>

@@ -1,7 +1,7 @@
-﻿@model IBoard
+﻿@model IRole
 
 @{
-    ViewBag.Title = "Удаление доски";
+    ViewBag.Title = "Удаление роли";
     Layout = "_Layout";
 }
 
@@ -15,9 +15,9 @@
             <br>
             
             <form asp-action="Remove" method="Post">
-                <input type="hidden" name="boardId" asp-for="Id" />
+                <input type="hidden" name="roleId" asp-for="Id" />
                 <input type="submit" value="Удалить" class="btn btn-default"/>
-                <a asp-action="Edit" asp-route-boardId="@Model.Id" class="btn btn-default">
+                <a asp-action="Roles" class="btn btn-default">
                     Отмена
                 </a>
             </form>

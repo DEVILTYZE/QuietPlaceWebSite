@@ -9,6 +9,8 @@ namespace QuietPlaceWebProject.Helpers
 {
     public static class TextHelper
     {
+        public static char[] Symbols = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g' };
+        
         public static string RemoveTags(string text)
         {
             var tags = new[] {"[b]", "[/b]", "[i]", "[/i]", "[ul]", "[/ul]", "[ol]", "[/ol]", "[lt]", "[/lt]",

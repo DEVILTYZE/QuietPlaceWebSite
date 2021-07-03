@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +43,12 @@ namespace QuietPlaceWebProject
 
             services.AddDbContext<BoardContext>(options => options.UseSqlServer(connectionStrings[0]));
             services.AddDbContext<UserContext>(options => options.UseSqlServer(connectionStrings[1]));
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options => //CookieAuthenticationOptions
+                {
+                    options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Board/NotFoundPage");
+                    options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Board/NotFoundPage");
+                });
             services.AddControllersWithViews();
         }
 
@@ -54,7 +61,7 @@ namespace QuietPlaceWebProject
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Board/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
@@ -64,7 +71,8 @@ namespace QuietPlaceWebProject
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            app.UseAuthentication();    // аутентификация
+            app.UseAuthorization();     // авторизация
 
             app.UseEndpoints(endpoints =>
             {

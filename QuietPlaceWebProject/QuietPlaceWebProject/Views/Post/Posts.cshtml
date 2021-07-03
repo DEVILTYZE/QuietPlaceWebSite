@@ -16,7 +16,7 @@
             </a>
         </td>
         <td>
-            <a asp-action="Create" asp-controller="Post" asp-route-threadId="@ViewBag.ThreadId" 
+            <a asp-action="Create" asp-route-threadId="@ViewBag.ThreadId" 
                class="btn btn-default" method="get">
                 Ответить в тред
             </a>
@@ -70,26 +70,3 @@
         }
     }
 </div>
-
-@{
-    var notify = ViewBag.NotifyIsEnabled as bool? ?? false;
-    var codeOfText = ViewBag.NotifyCode as int? ?? 404;
-    
-    if (notify)
-    {
-        <script>
-            window.onload = function () {
-                let text;
-                
-                if (@codeOfText === -1) {
-                    text = 'Пост удалён';
-                } else if (@codeOfText === 1) {
-                    text = 'Пост отправлен';
-                } else {
-                    text = 'NULL';
-                }
-                sendNotification('Результат действия:', { body: text, dir: 'rtl', icon: '/images/img.png'});
-            }
-        </script>
-    }
-}

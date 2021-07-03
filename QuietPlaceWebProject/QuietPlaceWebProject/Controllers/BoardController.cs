@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using QuietPlaceWebProject.Models;
 
 namespace QuietPlaceWebProject.Controllers
 {
+    [Authorize(Roles = "admin")]
     public class BoardController : Controller
     {
         private readonly BoardContext _dbBoard;
@@ -21,8 +23,9 @@ namespace QuietPlaceWebProject.Controllers
             InitialDatabase();
         }
 
+        [AllowAnonymous]
         [HttpGet]
-        public IActionResult Boards()
+        public async Task<IActionResult> Boards()
         {
             if (TempData is not null)
             {
@@ -30,7 +33,7 @@ namespace QuietPlaceWebProject.Controllers
                 ViewBag.NotifyCode = TempData["NotifyCode"] as int? ?? 404;
             }
             
-            var boards = _dbBoard.Boards.ToList();
+            var boards = await _dbBoard.Boards.ToListAsync();
 
             return View(boards);
         }
@@ -118,20 +121,35 @@ namespace QuietPlaceWebProject.Controllers
         [HttpPost]
         public async Task<IActionResult> Remove(int boardId)
         {
-            var threads = _dbBoard.Threads.Where(thread => thread.BoardId == boardId).ToList();
+            try
+            {
+                var threads = _dbBoard.Threads.Where(thread => thread.BoardId == boardId).ToList();
 
-            foreach (var posts in threads.Select(
-                thread => _dbBoard.Posts.Where(post => post.ThreadId == thread.Id).ToList()))
-                _dbBoard.Posts.RemoveRange(posts);
+                foreach (var posts in threads.Select(
+                    thread => _dbBoard.Posts.Where(post => post.ThreadId == thread.Id).ToList()))
+                    _dbBoard.Posts.RemoveRange(posts);
 
-            _dbBoard.Threads.RemoveRange(threads);
+                _dbBoard.Threads.RemoveRange(threads);
             
-            _dbBoard.Boards.Remove(await _dbBoard.Boards.FindAsync(boardId));
-            await _dbBoard.SaveChangesAsync();
+                _dbBoard.Boards.Remove(await _dbBoard.Boards.FindAsync(boardId));
+                await _dbBoard.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await _dbBoard.Boards.AnyAsync(localBoard => localBoard.Id == boardId))
+                    return NotFound();
+                
+                throw;
+            }
+            
             SetNotificationInfo(-1);
             
             return RedirectToAction(nameof(Boards));
         }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public IActionResult NotFoundPage() => View();
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
@@ -159,20 +177,54 @@ namespace QuietPlaceWebProject.Controllers
                 AccessRoleId = 1
             };
 
-            var defaultPasscode = new Passcode
+            var defaultThread = new Thread
             {
-                Code = "adm1n",
+                Name = "Проверка текста",
+                BoardId = 1,
+                HasBumpLimit = true,
+                PosterId = 1
+            };
+
+            var firstAnon = new User
+            {
+                IpAddress = AnonController.GetUserIpAddress().Result,
+                Passcode = "adm1n",
                 RoleId = 1
+            };
+            
+            var adminRole = new Role
+            {
+                Name = "admin"
+            };
+
+            var moderatorRole = new Role
+            {
+                Name = "moderator"
+            };
+
+            var bannedRole = new Role
+            {
+                Name = "banned"
             };
 
             var defaultRole = new Role
             {
-                Name = "Admin"
+                Name = "anon"
+            };
+            
+            var privilegedRole = new Role
+            {
+                Name = "privileged"
             };
 
             _dbBoard.Boards.Add(defaultBoard);
-            _dbUser.Passcodes.Add(defaultPasscode);
+            _dbBoard.Threads.Add(defaultThread);
+            _dbUser.Users.Add(firstAnon);
+            _dbUser.Roles.Add(adminRole);
+            _dbUser.Roles.Add(moderatorRole);
+            _dbUser.Roles.Add(bannedRole);
             _dbUser.Roles.Add(defaultRole);
+            _dbUser.Roles.Add(privilegedRole);
 
             _dbBoard.SaveChanges();
             _dbUser.SaveChanges();

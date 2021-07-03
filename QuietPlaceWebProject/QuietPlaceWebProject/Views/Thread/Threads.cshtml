@@ -42,26 +42,3 @@
         }
     </div>
 </div>
-
-@{
-    var notify = ViewBag.NotifyIsEnabled as bool? ?? false;
-    var codeOfText = ViewBag.NotifyCode as int? ?? 404;
-    
-    if (notify)
-    {
-        <script>
-            window.onload = function () {
-                let text;
-                
-                if (@codeOfText === -1) {
-                    text = 'Тред удалён';
-                } else if (@codeOfText === 1) {
-                    text = 'Тред создан';
-                } else {
-                    text = 'NULL';
-                }
-                sendNotification('Результат действия:', { body: text, dir: 'rtl', icon: '/images/img.png'});
-            }
-        </script>
-    }
-}

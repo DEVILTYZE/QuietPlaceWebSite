@@ -17,12 +17,9 @@ namespace QuietPlaceWebProject.Models
         public string IpAddress { get; set; }
         
         [HiddenInput(DisplayValue = false)]
-        public int PasscodeId { get; set; }
-
-        [Display(Name = "Забанен: ")]
-        public bool IsBanned { get; set; }
+        public string Passcode { get; set; }
 
         [HiddenInput(DisplayValue = false)]
-        public DateTime TimeOfRemoving { get; set; }
+        public int RoleId { get; set; }
     }
 }

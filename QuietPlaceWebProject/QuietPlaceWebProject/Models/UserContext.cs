@@ -7,7 +7,6 @@ namespace QuietPlaceWebProject.Models
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
-        public DbSet<Passcode> Passcodes { get; set; }
 
         public UserContext(DbContextOptions<UserContext> options) : base(options) 
             => Database.EnsureCreated();

@@ -7,6 +7,5 @@ namespace QuietPlaceWebProject.Interfaces
     {
         DbSet<User> Users { get; set; }
         DbSet<Role> Roles { get; set; }
-        DbSet<Passcode> Passcodes { get; set; }
     }
 }

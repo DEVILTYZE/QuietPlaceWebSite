@@ -7,16 +7,19 @@ namespace QuietPlaceWebProject.Interfaces
     // Пользователи, имеющие пасскод, хранятся в БД столько, сколько действует пасскод плюс 1 день.
     // Все права на взаимодействие с пользователями есть у админа.
     // Право на бан пользователя есть дополнительно у модераторов.
+    
+    // Пасскоды генерируются автоматически.
+    // Пасскод определяет роль пользователя.
+    // Пасскод разрешает отправлять сообщения с бОльшим количеством медиафайлов.
+    // Пасскод отключает капчу.
     public interface IUser
     {
         int Id { get; init; }
         
         string IpAddress { get; set; }
         
-        int PasscodeId { get; set; }
+        string Passcode { get; set; }
         
-        bool IsBanned { get; set; }
-        
-        DateTime TimeOfRemoving { get; set; }
+        int RoleId { get; set; }
     }
 }

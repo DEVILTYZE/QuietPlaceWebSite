@@ -1,0 +1,50 @@
+﻿@model IEnumerable<IRole>
+
+@{
+    ViewBag.Title = "Роли";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row">
+        <a class="col-sm" asp-action="Anons" asp-controller="Anon">
+            Аноны
+        </a>
+        <a class="col-sm" asp-action="Roles">
+            Роли
+        </a>
+    </div>
+</div>
+
+<table>
+    <tr>
+        <td>
+            <h1>@ViewBag.Title</h1>
+        </td>
+        <td>
+            <form asp-action="Create" class="btn btn-default" method="post">
+                <input name="roleName" type="text" />
+                <input type="submit" value="Создать роль" class="btn btn-default"/>
+            </form>
+        </td>
+        <td>
+            <a asp-action="Create" class="btn btn-default" method="get">
+                Создать роль
+            </a>
+        </td>
+    </tr>
+</table>
+
+<div class="container">
+    @foreach (var role in Model)
+    {
+        <div class="row">
+            <div class="col-sm">
+                @role.Name
+            </div>
+            <div class="col-sm">
+                <a asp-action="Remove" asp-route-roleId="@role.Id">Удалить роль</a>
+            </div>
+        </div>
+    }
+</div>

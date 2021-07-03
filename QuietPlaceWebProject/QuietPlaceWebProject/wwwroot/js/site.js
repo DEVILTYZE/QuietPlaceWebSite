@@ -32,13 +32,10 @@ function sendNotification(title, options) {
 }
 
 // DRAG AND DROP
-inputForm = document.getElementById('inputForm');
 
-if (inputForm !== null) {
-    inputForm.ondrop = function (event) {
-        let data = event.dataTransfer.getData('text');
-        alert(data);
-    }
+function dropHandler(ev) {
+    let data = ev.dataTransfer.getData('text');
+    alert(data);
 }
 
 // CARET POSITION

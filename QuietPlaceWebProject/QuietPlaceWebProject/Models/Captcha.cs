@@ -5,16 +5,16 @@ using QuietPlaceWebProject.Interfaces;
 
 namespace QuietPlaceWebProject.Models
 {
-    [Table("Passcodes")]
-    public class Passcode : IPasscode
+    [Table("Captcha")]
+    public class Captcha : ICaptcha
     {
         [HiddenInput(DisplayValue = false)]
-        public int Id { get; init; }
+        public int Id { get; set; }
         
-        [HiddenInput(DisplayValue = false)]
-        public string Code { get; set; }
+        [Required]
+        public string ImageUrl { get; set; }
         
-        [HiddenInput(DisplayValue = false)]
-        public int RoleId { get; set; }
+        [Required]
+        public string Word { get; set; }
     }
 }

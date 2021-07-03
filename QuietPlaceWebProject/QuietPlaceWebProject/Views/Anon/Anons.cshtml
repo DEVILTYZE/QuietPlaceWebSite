@@ -5,56 +5,122 @@
     Layout = "_Layout";
 }
 
-<h1>@ViewBag.Title</h1>
-
 <div class="container">
     <div class="row">
-        <div class="col-sm">ID</div>
-        <div class="col-sm">IP-адрес</div>
-        <div class="col-sm">Роль</div>
-        <div class="col-sm">Пасскод</div>
-        <div class="col-sm">Статус</div>
-        <div class="col-sm">Действие</div>
+        <a class="col-sm" asp-action="Anons">
+            Аноны
+        </a>
+        <a class="col-sm" asp-action="Roles" asp-controller="Role">
+            Роли
+        </a>
     </div>
-    @{
-        var roles = (Dictionary<int, string>) ViewBag.Roles;
-        
-        foreach (var user in Model)
-        {
-            var passcode = ((List<Passcode>) ViewBag.Passcodes).Find(localPasscode 
-                => localPasscode.Id == user.PasscodeId);
-
-            <div class="row">
-                <div class="col-sm">
-                    @user.Id
-                </div>
-                <div class="col-sm">
-                    @user.IpAddress
-                </div>
-                <div class="col-sm">
-                    @if (passcode is not null)
-                    {
-                        @roles[passcode.RoleId]
-                    }
-                </div>
-                <div class="col-sm">
-                    @passcode?.Code
-                </div>
-                @if (user.IsBanned)
-                {
-                    <div class="col-sm">Забанен</div>
-                    <div class="col-sm">
-                        <a asp-action="BanUnBan" asp-route-userId="@user.Id" asp-route-isBan="false">Разбанить</a>
-                    </div>
-                }
-                else
-                {
-                    <div class="col-sm">Активен</div>
-                    <div class="col-sm">
-                        <a asp-action="BanUnBan" asp-route-userId="@user.Id" asp-route-isBan="true">Забанить</a>
-                    </div>
-                }
-            </div>
-        }
-    }
 </div>
+
+<h1>@ViewBag.Title</h1>
+
+<table>
+    <tr>
+        <td>ID</td>
+        <td>IP-адрес</td>
+        <td>Роль</td>
+        <td>Пасскод</td>
+        <td>Статус</td>
+        <td>Действие</td>
+    </tr>
+        @{
+            var roles = (Dictionary<int, string>) ViewBag.Roles;
+            
+            foreach (var user in Model)
+            {
+                <tr>
+                    <td>
+                        @user.Id
+                    </td>
+                    <td>
+                        @user.IpAddress
+                    </td>
+                    <td>
+                        @roles[user.RoleId]
+                    </td>
+                    <td>
+                        @user.Passcode
+                    </td>
+                    <td>
+                        <select>
+                            <option>
+                                <a asp-action="Remove" asp-route-userId="@user.Id">Удалить анонима</a>
+                            </option>
+                            <option>
+                            @if (user.RoleId == 3)
+                            {
+                                <div>Забанен</div>
+                                <div>
+                                    <a asp-action="Ban" asp-route-userId="@user.Id" asp-route-isBan="false">Разбанить</a>
+                                </div>
+                            }
+                            else
+                            {
+                                <div>Активен</div>
+                                <div>
+                                    <a asp-action="Ban" asp-route-userId="@user.Id" asp-route-isBan="true">Забанить</a>
+                                </div>
+                            }
+                            </option>
+                        </select>
+                    </td>
+                </tr>
+            }
+        }
+</table>
+
+@* <div class="container"> *@
+@*     <div class="row"> *@
+@*         <div class="col-sm">ID</div> *@
+@*         <div class="col-sm">IP-адрес</div> *@
+@*         <div class="col-sm">Роль</div> *@
+@*         <div class="col-sm">Пасскод</div> *@
+@*         <div class="col-sm">Статус</div> *@
+@*         <div class="col-sm">Действие</div> *@
+@*     </div> *@
+@*     @{ *@
+@*         var roles = (Dictionary<int, string>) ViewBag.Roles; *@
+@*          *@
+@*         foreach (var user in Model) *@
+@*         { *@
+@*             var passcode = ((List<Passcode>) ViewBag.Passcodes).Find(localPasscode  *@
+@*                 => localPasscode.Id == user.PasscodeId); *@
+@* *@
+@*             <div class="row"> *@
+@*                 <div class="col-sm"> *@
+@*                     @user.Id *@
+@*                 </div> *@
+@*                 <div class="col-sm"> *@
+@*                     @user.IpAddress *@
+@*                 </div> *@
+@*                 <div class="col-sm"> *@
+@*                     @if (passcode is not null) *@
+@*                     { *@
+@*                         @roles[passcode.RoleId] *@
+@*                     } *@
+@*                 </div> *@
+@*                 <div class="col-sm"> *@
+@*                     @passcode?.Code *@
+@*                 </div> *@
+@*                 @if (user.IsBanned) *@
+@*                 { *@
+@*                     <div class="col-sm">Забанен</div> *@
+@*                     <div class="col-sm"> *@
+@*                         <a asp-action="BanUnBan" asp-route-userId="@user.Id" asp-route-isBan="false">Разбанить</a> *@
+@*                     </div> *@
+@*                 } *@
+@*                 else *@
+@*                 { *@
+@*                     <div class="col-sm">Активен</div> *@
+@*                     <div class="col-sm"> *@
+@*                         <a asp-action="BanUnBan" asp-route-userId="@user.Id" asp-route-isBan="true">Забанить</a> *@
+@*                     </div> *@
+@*                 } *@
+@*             </div> *@
+@*         } *@
+@*     } *@
+@* </div> *@

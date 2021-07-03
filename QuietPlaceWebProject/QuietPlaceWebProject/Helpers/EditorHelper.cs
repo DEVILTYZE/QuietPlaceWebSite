@@ -6,19 +6,48 @@ namespace QuietPlaceWebProject.Helpers
 {
     public static class EditorHelper
     {
+        public static HtmlString BuildCaptchaTool(string imageName)
+        {
+            if (string.CompareOrdinal(imageName, "NULL") == 0)
+                return new HtmlString("NULL");
+            
+            var img = new TagBuilder("img");
+            img.Attributes.Add(new KeyValuePair<string, string>("src", "../captcha/images/" + imageName));
+
+            var input = new TagBuilder("input");
+            input.Attributes.Add(new KeyValuePair<string, string>("name", "captchaWord"));
+            input.Attributes.Add(new KeyValuePair<string, string>("type", "text"));
+
+            var rowImg = new TagBuilder("div");
+            rowImg.AddCssClass("row");
+            rowImg.InnerHtml = img.ToString();
+
+            var rowInput = new TagBuilder("div");
+            rowInput.AddCssClass("row");
+            rowInput.InnerHtml = input.ToString();
+
+            var row = new TagBuilder("div");
+            row.AddCssClass("row");
+            row.InnerHtml = rowImg.ToString();
+            row.InnerHtml += rowInput.ToString();
+
+            return new HtmlString(row.ToString());
+        }
+        
         public static HtmlString BuildMediafileTool()
         {
             var img = new TagBuilder("img");
             img.Attributes.Add(new KeyValuePair<string, string>("src", 
-                "~/images/img.png"));
+                "../images/file.png"));
 
             var div = new TagBuilder("div");
 
             var input = new TagBuilder("input");
+            input.Attributes.Add(new KeyValuePair<string, string>("id", "inputFile"));
             input.Attributes.Add(new KeyValuePair<string, string>("type", "file"));
 
             var label = new TagBuilder("label");
-            label.Attributes.Add(new KeyValuePair<string, string>("for", "file-input"));
+            label.Attributes.Add(new KeyValuePair<string, string>("for", "inputFile"));
             label.SetInnerText("Выберите файл");
 
             var span = new TagBuilder("div");
@@ -36,16 +65,16 @@ namespace QuietPlaceWebProject.Helpers
                 "ondragenter", "changeClass(this, 'dragover')"));
             mainDiv.Attributes.Add(new KeyValuePair<string, string>(
                 "ondragleave", "changeClass(this, 'dragover')"));
+            mainDiv.Attributes.Add(new KeyValuePair<string, string>(
+                "ondragend", "changeClass(this, 'dragover')"));
+            mainDiv.Attributes.Add(new KeyValuePair<string, string>(
+                "ondrop", "dropHandler(event);"));
             mainDiv.InnerHtml += img.ToString(TagRenderMode.SelfClosing);
             mainDiv.InnerHtml += div.ToString();
-
-            // var script = new TagBuilder("script");
-            // script.Attributes.Add(new KeyValuePair<string, string>("src", "~/js/dragNDrop.js"));
 
             var row = new TagBuilder("div");
             row.AddCssClass("row");
             row.InnerHtml += mainDiv.ToString();
-            // row.InnerHtml += script.ToString();
 
             return new HtmlString(row.ToString());
         }
