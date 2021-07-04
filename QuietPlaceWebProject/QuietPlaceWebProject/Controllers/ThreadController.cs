@@ -9,7 +9,6 @@ using QuietPlaceWebProject.Models;
 
 namespace QuietPlaceWebProject.Controllers
 {
-    [Authorize(Roles = "admin, moderator, anon")]
     public class ThreadController : Controller
     {
         private readonly BoardContext _dbBoard;
@@ -21,21 +20,21 @@ namespace QuietPlaceWebProject.Controllers
             _dbUser = dbUser;
         }
         
-        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Threads(int? boardId)
         {
             if (boardId is null)
-                return NotFound();
+                return RedirectToAction("NotFoundPage", "Anon");
             
-            if (TempData is not null)
-            {
-                ViewBag.NotifyIsEnabled = TempData["NotifyIsEnabled"] as bool? ?? false;
-                ViewBag.NotifyCode = TempData["NotifyCode"] as int? ?? 404;
-            }
+            // if (TempData is not null)
+            // {
+            //     ViewBag.NotifyIsEnabled = TempData["NotifyIsEnabled"] as bool? ?? false;
+            //     ViewBag.NotifyCode = TempData["NotifyCode"] as int? ?? 404;
+            // }
             
             var threads = await _dbBoard.Threads.Where(thread => thread.BoardId == boardId).ToListAsync();
             var board = await _dbBoard.Boards.FindAsync(boardId);
+            ViewBag.Posts = await _dbBoard.Posts.ToListAsync();
             ViewBag.FullName = board.DomainName + " — " + board.Name;
             ViewBag.Name = board.Name;
             ViewBag.BoardId = boardId;
@@ -47,12 +46,21 @@ namespace QuietPlaceWebProject.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create(int? boardId)
+        public async Task<IActionResult> Create(int? boardId)
         {
             if (boardId is null)
-                return NotFound();
+                return RedirectToAction("NotFoundPage", "Anon");
 
-            SetCaptcha();
+            if (TempData["IsBanned"] is null)
+                return RedirectToAction("IsBanned", "Anon", new {boardId});
+
+            var maxCountOfThreads = (await _dbBoard.Boards.FindAsync(boardId)).MaxCountOfThreads;
+
+            if (await _dbBoard.Threads.CountAsync() > maxCountOfThreads)
+                return RedirectToAction("Boards", "Board");
+
+            if (!await IsHighRole())
+                SetCaptcha();
 
             ViewBag.BoardId = boardId;
 
@@ -65,13 +73,15 @@ namespace QuietPlaceWebProject.Controllers
         {
             thread.HasBumpLimit = true;
             thread.Name = thread.Name.Trim();
-            
+
+            captchaWord ??= "NULL";
             var captchaWordValid = TempData["CaptchaWord"] as string ?? "NULL";
             
-            if (!ModelState.IsValid || string.CompareOrdinal(
+            if (!ModelState.IsValid || textPost.Length is 0 or > 5000 || string.CompareOrdinal(
                 captchaWord.ToUpper(), captchaWordValid.ToUpper()) != 0)
             {
-                SetCaptcha();
+                if (!await IsHighRole())
+                    SetCaptcha();
                 
                 ViewBag.BoardId = thread.BoardId;
                 ViewBag.TextPost = textPost;
@@ -84,7 +94,6 @@ namespace QuietPlaceWebProject.Controllers
 
             await _dbBoard.Threads.AddAsync(thread);
             await _dbBoard.SaveChangesAsync();
-            SetNotificationInfo(1);
             
             return RedirectToAction("Create", "Post", new { threadId = thread.Id });
         }
@@ -94,9 +103,10 @@ namespace QuietPlaceWebProject.Controllers
         public async Task<IActionResult> Remove(int? threadId)
         {
             if (threadId is null)
-                return NotFound();
+                return RedirectToAction("NotFoundPage", "Anon");
 
             var thread = await _dbBoard.Threads.FindAsync(threadId);
+            ViewBag.TextPost = await _dbBoard.Posts.Where(localPost => localPost.ThreadId == threadId).FirstAsync();
 
             return View(thread);
         }
@@ -119,22 +129,23 @@ namespace QuietPlaceWebProject.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!await _dbBoard.Threads.AnyAsync(localThread => localThread.Id == threadId))
-                    return NotFound();
+                    return RedirectToAction("NotFoundPage", "Anon");
                 
                 throw;
             }
-            
-            SetNotificationInfo(-1);
 
             return RedirectToAction(nameof(Threads), new { thread.BoardId });
         }
-        
-        private void SetNotificationInfo(int code)
-        {
-            TempData["NotifyIsEnabled"] = true;
-            TempData["NotifyCode"] = code;
-        }
 
+        private async Task<bool> IsHighRole()
+        {
+            var ipAddress = await AnonController.GetUserIpAddress();
+            var user = await _dbUser.Users.Where(localUser 
+                => string.Compare(localUser.IpAddress, ipAddress) == 0).FirstAsync();
+
+            return user.RoleId <= 3;
+        }
+        
         // Captcha
         private void SetCaptcha()
         {

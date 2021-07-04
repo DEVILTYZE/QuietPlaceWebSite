@@ -9,7 +9,7 @@
 </head>
 <body>
 <header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark border-bottom box-shadow mb-3">
         <div class="container">
             <a class="navbar-brand" asp-area="" asp-controller="Board" asp-action="Boards">Тихое место</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -19,14 +19,18 @@
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between"> 
                 <ul class="navbar-nav flex-grow-1">
                     <li class="nav-item">
-                        <a class="nav-link text-dark" asp-controller="Anon" asp-action="Anons">
-                            Управление имиджбордой
-                        </a>
+                        <a class="nav-link text-light" asp-controller="Anon" asp-action="Anons">Управление имиджбордой</a>
                     </li>
                     <li class="nav-item">
                         <form asp-action="SetPasscode" asp-controller="Anon" method="get">
-                            <input name="passcode" type="text"/>
-                            <input type="submit" class="nav-link text-dark" value="Ввести пасскод" /> 
+                            <div class="row justify-content-end">
+                                <div class="col">
+                                    <input class="navbar-text bg-dark text-light" name="passcode" type="text"/>
+                                </div>
+                                <div class="col">
+                                    <input class="btn btn-dark" type="submit" value="Ввести пасскод"/>
+                                </div>
+                            </div>
                         </form>
                     </li>
                 </ul>
@@ -35,7 +39,7 @@
     </nav>
 </header>
 <div class="container">
-    <main role="main" class="pb-3">
+    <main role="main" class="pb-3" class="board-page">
         @RenderBody()
     </main>
 </div>

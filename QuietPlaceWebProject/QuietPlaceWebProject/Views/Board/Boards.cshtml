@@ -5,27 +5,35 @@
     Layout = "_Layout";
 }
 
-<!DOCTYPE html>
-
-<table>
-    <tr>
-        <td>
-            <h1>Добро пожаловать. Снова.</h1>
-        </td>
-        <td>
-            <a asp-action="Create" asp-controller="Board" class="btn btn-default" method="get">
-                Создать новую доску
-            </a>
-        </td>
-    </tr>
-</table>
-
 <div class="container">
     <div class="row">
+        <div class="col">
+            <h1>Добро пожаловать. Снова.</h1>
+        </div>
+        <div class="col">
+            <div class="row justify-content-end">
+                <div class="col-auto">
+                    <a asp-action="Create" asp-controller="Board" class="btn btn-dark" method="get">Создать новую доску</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br>
+<div class="container">
+    <div class="row row-cols-3">
         @foreach (var board in Model)
         {
-            <div class="col-sm">
-                <a asp-action="Threads" asp-controller="Thread" asp-route-boardId="@board.Id">@board.Name</a>
+            <div class="col">
+                <div class="card" style="width: 14rem;">
+                    <img src="@Url.Content("~/images/")@board.ImageUrl" alt="" />
+                    <div class="card-body bg-dark text-light">
+                        <a asp-action="Threads" asp-controller="Thread" asp-route-boardId="@board.Id" 
+                           class="btn btn-secondary" id="a-button" >@board.Name</a>
+                        <p class="card-text">@board.Description</p>
+                    </div>
+                </div>
             </div>
         }
     </div>

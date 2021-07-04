@@ -5,40 +5,45 @@
     Layout = "_Layout";
 }
 
-<table>
-    <tr>
-        <td>
-            <h1>@ViewBag.Name</h1>
-        </td>
-        <td>
-            <a asp-action="Edit" asp-controller="Board" asp-route-boardId="@ViewBag.BoardId" 
-               class="btn btn-default" method="get">
-                Редактировать доску
-            </a>
-        </td>
-        <td>
-            <a asp-action="Create" asp-controller="Thread" asp-route-boardId="@ViewBag.BoardId" 
-               class="btn btn-default" method="get">
-                Создать новый тред
-            </a>
-        </td>
-    </tr>
-</table>
-
 <div class="container">
     <div class="row">
-        @if (!Model.Any())
+        <div class="col">
+            <h1>@ViewBag.Name</h1>
+        </div>
+        <div class="col">
+            <div class="row justify-content-end">
+                <div class="col-auto">
+                    <a asp-action="Edit" asp-controller="Board" asp-route-boardId="@ViewBag.BoardId" 
+                       class="btn btn-dark" method="get">Редактировать доску</a>
+                </div>
+                <div class="col-auto">
+                    <a asp-action="Create" asp-controller="Thread" asp-route-boardId="@ViewBag.BoardId" 
+                       class="btn btn-dark" method="get">Создать новый тред</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    @if (!Model.Any())
         {
-            <h2>@ViewBag.Message</h2>
+            <div class="row">
+                <div class="col">
+                    <h2>@ViewBag.Message</h2>
+                </div>
+            </div>
         }
         else
         {
             foreach (var thread in Model)
             {
-                <div class="col-sm">
-                    <a asp-action="Posts" asp-controller="Post" asp-route-threadId="@thread.Id">@thread.Name</a>
+                <div class="row">
+                    <div class="col">
+                        <a asp-action="Posts" asp-controller="Post" asp-route-threadId="@thread.Id"
+                           class="btn btn-dark">@thread.Name</a>
+                    </div>
                 </div>
             }
         }
-    </div>
 </div>

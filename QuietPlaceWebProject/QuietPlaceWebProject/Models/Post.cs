@@ -12,6 +12,7 @@ namespace QuietPlaceWebProject.Models
         [HiddenInput(DisplayValue = false)]
         public int Id { get; init; }
         
+        [Required]
         [StringLength(5000, ErrorMessage = "Текст поста не должен превышать 5000 символов.")]
         [Display(Name = "Текст: ")]
         public string Text { get; set; }
@@ -19,12 +20,15 @@ namespace QuietPlaceWebProject.Models
         [Display(Name = "Дата создания: ")]
         public DateTime DateOfCreation { get; set; }
         
+        [Required]
         [HiddenInput(DisplayValue = false)]
         public int PosterId { get; set; }
 
+        [Required]
         [HiddenInput(DisplayValue = false)]
         public bool IsOriginalPoster { get; set; }
         
+        [Required]
         [HiddenInput(DisplayValue = false)]
         public int ThreadId { get; set; }
     }

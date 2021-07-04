@@ -61,7 +61,6 @@ html {
 body {
   /* Margin bottom by footer height */
   margin-bottom: 60px;
-  font-family: 'Segoe UI', serif;
 }
 .footer {
   position: absolute;
@@ -73,25 +72,10 @@ body {
 
 /* Text creators
 -------------------------------------------------- */
-.div-post {
-  height: auto;
-  max-height: 650px;
-  overflow: auto;
-  resize: none;
-  word-wrap: break-word;
-  white-space: pre-wrap;
-  border: black;
-}
-
 .spoiler {
   color: #6c757d;
   background-color: #6c757d;
 }
-
-/*.unspoiler {
-  color: black;
-  background-color: white;
-}*/
 
 /* Upload form
 -------------------------------------------------- */
@@ -142,3 +126,30 @@ body {
   outline-offset: -17px;
 }
 
+/* Site design
+-------------------------------------------------- */
+body {
+  background-color: #000C0E;
+  color: #f8f9fa;
+  font-family: 'Segoe UI', serif;
+}
+
+.board-page {
+  float: right;
+  padding-right: 5%;
+}
+
+.board {
+  flex: auto;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 95%;
+  height: 95%;
+  max-height: 720px;
+  background-color: #011618;
+  border: 2px solid #adb5bd;
+}
+
+.straight-line {
+  border: 2px solid lightgray;
+}

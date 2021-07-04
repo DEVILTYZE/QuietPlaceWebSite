@@ -9,6 +9,10 @@
         
         string DomainName { get; set; }
         
+        string ImageUrl { get; set; }
+        
+        string Description { get; set; }
+        
         int MaxCountOfThreads { get; set; }
         
         bool IsHidden { get; set; }

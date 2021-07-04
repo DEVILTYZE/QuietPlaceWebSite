@@ -29,7 +29,7 @@ namespace QuietPlaceWebProject.Controllers
                 Name = roleName
             };
             
-            if (roleName.Length is >= 3 and <= 30)
+            if (roleName.Length is < 3 or > 30)
                 return RedirectToAction(nameof(Roles));
 
             await _dbUser.Roles.AddAsync(role);
@@ -42,7 +42,7 @@ namespace QuietPlaceWebProject.Controllers
         public async Task<IActionResult> Remove(int? roleId)
         {
             if (roleId is null)
-                return NotFound();
+                return RedirectToAction("NotFoundPage", "Anon");
 
             var role = await _dbUser.Roles.FindAsync(roleId);
 
@@ -56,11 +56,12 @@ namespace QuietPlaceWebProject.Controllers
             {
                 var role = await _dbUser.Roles.FindAsync(roleId);
                 _dbUser.Roles.Remove(role);
+                await _dbUser.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!await _dbUser.Roles.AnyAsync(localRole => localRole.Id == roleId))
-                    return NotFound();
+                    return RedirectToAction("NotFoundPage", "Anon");
                 
                 throw;
             }

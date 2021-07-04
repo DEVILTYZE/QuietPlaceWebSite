@@ -6,45 +6,72 @@
 }
 
 <div class="container">
-    <div class="row">
-        <a class="col-sm" asp-action="Anons" asp-controller="Anon">
-            Аноны
-        </a>
-        <a class="col-sm" asp-action="Roles">
-            Роли
-        </a>
+    <div class="row justify-content-around">
+        <div class="col-auto">
+            <a asp-action="Anons" asp-controller="Anon" class="btn btn-dark">Аноны</a>
+        </div>
+        <div class="col-auto">
+            <a asp-action="Roles" class="btn btn-dark">Роли</a>
+        </div>
     </div>
 </div>
 
-<table>
-    <tr>
-        <td>
-            <h1>@ViewBag.Title</h1>
-        </td>
-        <td>
-            <form asp-action="Create" class="btn btn-default" method="post">
-                <input name="roleName" type="text" />
-                <input type="submit" value="Создать роль" class="btn btn-default"/>
-            </form>
-        </td>
-        <td>
-            <a asp-action="Create" class="btn btn-default" method="get">
-                Создать роль
-            </a>
-        </td>
-    </tr>
-</table>
-
+<br>
 <div class="container">
-    @foreach (var role in Model)
-    {
-        <div class="row">
-            <div class="col-sm">
-                @role.Name
-            </div>
-            <div class="col-sm">
-                <a asp-action="Remove" asp-route-roleId="@role.Id">Удалить роль</a>
-            </div>
+    <div class="row">
+        <div class="col">
+            <h1>@ViewBag.Title</h1>
         </div>
-    }
+    </div>
+</div>
+
+<br>
+<div class="container">
+    <table class="table text-light">
+        <thead>
+        <tr>
+            <td>Название роли</td>
+            <td>Действие</td>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var role in Model)
+        {
+            <tr>
+                <td>
+                    @role.Name
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <a asp-action="Anons" asp-controller="Anon" asp-route-roleId="@role.Id" 
+                           class="btn btn-dark">Список анонов</a>
+                        @{
+                            var remove = "disabled";
+
+                            if (role.Id > 5)
+                                remove = string.Empty;
+
+                            <a asp-action="Remove" asp-route-roleId="@role.Id"
+                               class="btn btn-dark @remove">Удалить роль</a>
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
+        <tr>
+            <td>
+                <form asp-action="Create" method="post">
+                    <div class="row">
+                        <div class="col">
+                            <input class="bg-dark text-light" name="roleName" type="text"/>
+                        </div>
+                        <div class="col">
+                            <input class="btn btn-dark" type="submit" value="Создать роль"/>
+                        </div>
+                    </div>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
 </div>

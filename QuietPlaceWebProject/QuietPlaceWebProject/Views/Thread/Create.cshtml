@@ -5,29 +5,55 @@
     Layout = "_Layout";
 }
 
-<h1>@ViewBag.Title</h1>
-
 <div class="container">
     <div class="row">
-        <div class="col-md">
+        <div class="col">
+            <h1>@ViewBag.Title</h1>
+        </div>
+    </div>
+</div>
+
+<br>
+<div class="container">
+    <div class="row">
+        <div class="col-8">
             <form asp-action="Create" method="Post" enctype="multipart/form-data">
                 <input asp-for="BoardId" value="@ViewBag.BoardId" type="hidden" />
                 <div class="form-group">
                     <label asp-for="Name" class="control-label"></label>
-                    <input asp-for="Name" class="form-control"/>
+                    <input asp-for="Name" class="form-control bg-dark text-light"/>
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    @EditorHelper.BuildEditorTools()
-                    <div class="row">
-                        <textarea name="textPost" id="textPost" type="text" cols="75" rows="15" 
-                            placeholder="Текст треда..." style="resize: none"></textarea>
+                    <div class="container">
+                        @EditorHelper.BuildEditorTools()
+                        <br>
+                        <div class="row">
+                            <textarea class="form-control bg-dark text-light" name="textPost" id="textPost" type="text" 
+                                rows="15" placeholder="Текст треда..." style="resize: none"
+                                oninput="countSymbols(this)">@(ViewBag.TextPost as string ?? string.Empty)</textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-auto border-light">
+                                <div id="countOfSymbols" style="justify-content: center">5000</div>
+                            </div>
+                        </div>
+                        <br>
+                        @EditorHelper.BuildMediafileTool()
+                        <br>
+                        @EditorHelper.BuildCaptchaTool(ViewBag.CaptchaImage as string ?? "NULL")
+                        <br>
                     </div>
-                    @EditorHelper.BuildMediafileTool()
-                    @EditorHelper.BuildCaptchaTool(ViewBag.CaptchaImage as string ?? "NULL")
                 </div>
                 <div class="form-group">
-                    <input type="submit" value="Создать" class="btn btn-default"/>
+                    <div class="row">
+                        <div class="col-auto">
+                            <input class="btn btn-dark" type="submit" value="Создать"/>
+                        </div>
+                        <div class="col-auto">
+                            <a asp-action="Threads" asp-route-boardId="@ViewBag.BoardId" class="btn btn-dark">Отмена</a>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>

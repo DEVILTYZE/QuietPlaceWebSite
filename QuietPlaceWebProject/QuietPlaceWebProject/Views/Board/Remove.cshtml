@@ -5,21 +5,28 @@
     Layout = "_Layout";
 }
 
-<h1>@ViewBag.Title</h1>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>@ViewBag.Title</h1>
+        </div>
+    </div>
+</div>
 
 <br>
 <div class="container">
     <div class="row">
-        <div class="col-sm">
+        <div class="col">
             <h2>Вы точно хотите удалить @Model.Name?</h2>
-            <br>
-            
+        </div>
+        <div class="col">
+            <p>@Model.Description</p>
+        </div>
+        <div class="col">
             <form asp-action="Remove" method="Post">
                 <input type="hidden" name="boardId" asp-for="Id" />
-                <input type="submit" value="Удалить" class="btn btn-default"/>
-                <a asp-action="Edit" asp-route-boardId="@Model.Id" class="btn btn-default">
-                    Отмена
-                </a>
+                <input class="btn btn-dark" type="submit" value="Удалить"/>
+                <a asp-action="Edit" asp-route-boardId="@Model.Id" class="btn btn-dark">Отмена</a>
             </form>
         </div>
     </div>

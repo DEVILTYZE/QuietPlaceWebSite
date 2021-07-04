@@ -5,49 +5,74 @@
     Layout = "_Layout";
 }
 
-<h1>@ViewBag.Title</h1>
-
-<hr />
 <div class="container">
     <div class="row">
-        <div class="col-sm">
+        <div class="col">
+            <h1>@ViewBag.Title</h1>
+        </div>
+    </div>
+</div>
+
+<br>
+<div class="container">
+    <div class="row">
+        <div class="col-8">
             <form asp-action="Edit" asp-controller="Board" method="Post" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="Id" />
                 <div class="form-group">
                     <label asp-for="Name" class="control-label"></label>
-                    <input asp-for="Name" class="form-control" />
+                    <input asp-for="Name" class="form-control  bg-dark text-light" />
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="DomainName" class="control-label"></label>
-                    <input asp-for="DomainName" class="form-control" />
+                    <input asp-for="DomainName" class="form-control  bg-dark text-light" />
                     <span asp-validation-for="DomainName" class="text-danger"></span>
                 </div>
                 <div class="form-group">
+                    <label class="control-label">Выберите файл для загрузки</label>
+                    <input type="file" name="upload" class="form-control  bg-dark text-light" />
+                </div>
+                <div class="form-group">
                     <label asp-for="MaxCountOfThreads" class="control-label"></label>
-                    <input type="number" asp-for="MaxCountOfThreads" class="form-control" />
+                    <input asp-for="MaxCountOfThreads" type="number" class="form-control  bg-dark text-light" />
                     <span asp-validation-for="MaxCountOfThreads" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="IsHidden" class="control-label"></label>
-                    <input type="checkbox" asp-for="IsHidden" class="form-control" unchecked />
+                    <input asp-for="IsHidden" type="checkbox" class="form-control  bg-dark text-light" unchecked />
                     <span asp-validation-for="IsHidden" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="AccessRoleId" class="control-label"></label>
-                    <select asp-for="AccessRoleId" class="form-control" asp-items="ViewBag.Roles"></select>
+                    <select asp-for="AccessRoleId" asp-items="ViewBag.Roles" 
+                            class="form-control bg-dark text-light"></select>
                     <span asp-validation-for="AccessRoleId" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <input type="submit" value="Сохранить" class="btn btn-default" />
+                 <div class="form-group">
+                    <label asp-for="Description" class="control-label"></label>
+                    <textarea asp-for="Description" class="form-control bg-dark text-light" cols="75" rows="15"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <a asp-action="Remove" asp-controller="Board" asp-route-boardId="@Model.Id" class="btn btn-default">
-                        Удалить доску
-                    </a>
+                    <input type="submit" value="Сохранить" class="button-board" />
                 </div>
+                @if (Model.Id != 1)
+                {
+                    <div class="form-group">
+                        <a asp-action="Remove" asp-controller="Board" asp-route-boardId="@Model.Id" 
+                           class="btn btn">Удалить доску</a>
+                    </div>
+                }
             </form>
+        </div>
+        <div class="col">
+            <label class="control-label">Обложка доски</label>
+            @if (Model.ImageUrl != null)
+            {
+                <img src="@Url.Content("~/images/")@Model.ImageUrl" alt="" />
+            }
         </div>
     </div>
 </div>

@@ -1,10 +1,17 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using QuietPlaceWebProject.Models;
 
 namespace QuietPlaceWebProject.Controllers
@@ -14,11 +21,13 @@ namespace QuietPlaceWebProject.Controllers
     {
         private readonly BoardContext _dbBoard;
         private readonly UserContext _dbUser;
+        private readonly IHostEnvironment _environment;
         
-        public BoardController(BoardContext dbBoard, UserContext dbUser)
+        public BoardController(BoardContext dbBoard, UserContext dbUser, IHostEnvironment environment)
         {
             _dbBoard = dbBoard;
             _dbUser = dbUser;
+            _environment = environment;
             
             InitialDatabase();
         }
@@ -32,8 +41,15 @@ namespace QuietPlaceWebProject.Controllers
                 ViewBag.NotifyIsEnabled = TempData["NotifyIsEnabled"] as bool? ?? false;
                 ViewBag.NotifyCode = TempData["NotifyCode"] as int? ?? 404;
             }
-            
-            var boards = await _dbBoard.Boards.ToListAsync();
+
+            List<Board> boards;
+            var ipAddress = await AnonController.GetUserIpAddress();
+            var user = await _dbUser.Users.Where(localUser => localUser.IpAddress == ipAddress).ToListAsync();
+
+            if (user.Count == 1 && user.First().RoleId <= 2)
+                boards = await _dbBoard.Boards.ToListAsync();
+            else
+                boards = await _dbBoard.Boards.Where(localBoard => !localBoard.IsHidden).ToListAsync();
 
             return View(boards);
         }
@@ -48,12 +64,24 @@ namespace QuietPlaceWebProject.Controllers
         
         [HttpPost]
         public async Task<IActionResult> Create(
-            [Bind("Id, Name, DomainName, MaxCountOfThreads, IsHidden, AccessRoleId")] Board board)
+            [Bind("Id, Name, DomainName, Description, MaxCountOfThreads, IsHidden, AccessRoleId")] Board board, 
+            IFormFile upload)
         {
             ViewBag.Roles = new SelectList(_dbUser.Roles, "Id", "Name");
             board.Name = board.Name.Trim();
+
+            if (upload is not null)
+            {
+                var fileName = Path.GetFileName(upload.FileName);
+
+                if (IsImage(fileName))
+                {
+                    board.ImageUrl = fileName;
+                    SaveImage(fileName, upload);
+                }
+            }
             
-            if (!ModelState.IsValid) 
+            if (!ModelState.IsValid || upload is null) 
                 return View(board);
             
             await _dbBoard.Boards.AddAsync(board);
@@ -67,7 +95,7 @@ namespace QuietPlaceWebProject.Controllers
         public async Task<IActionResult> Edit(int? boardId)
         {
             if (boardId is null)
-                return NotFound();
+                return RedirectToAction("NotFoundPage", "Anon");
 
             var board = await _dbBoard.Boards.FindAsync(boardId);
             ViewBag.Roles = new SelectList(_dbUser.Roles, "Id", "Name");
@@ -77,8 +105,20 @@ namespace QuietPlaceWebProject.Controllers
 
         [HttpPost]
         public async Task<IActionResult> Edit(
-            [Bind("Id, Name, DomainName, MaxCountOfThreads, IsHidden, AccessRoleId")] Board board)
+            [Bind("Id, Name, DomainName, Description, MaxCountOfThreads, IsHidden, AccessRoleId")] Board board,
+            IFormFile upload)
         {
+            if (upload is not null)
+            {
+                var fileName = Path.GetFileName(upload.FileName);
+
+                if (IsImage(fileName))
+                {
+                    board.ImageUrl = fileName;
+                    SaveImage(fileName, upload);
+                }
+            }
+            
             if (!ModelState.IsValid)
             {
                 ViewBag.Roles = new SelectList(_dbUser.Roles, "Id", "Name");
@@ -94,7 +134,7 @@ namespace QuietPlaceWebProject.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!await _dbBoard.Boards.AnyAsync(localBoard => localBoard.Id == board.Id))
-                    return NotFound();
+                    return RedirectToAction("NotFoundPage", "Anon");
                 
                 throw;
             }
@@ -108,7 +148,7 @@ namespace QuietPlaceWebProject.Controllers
         public async Task<IActionResult> Remove(int? boardId)
         {
             if (boardId is null)
-                return NotFound();
+                return RedirectToAction("NotFoundPage", "Anon");
             
             if (_dbBoard.Boards.Count() == 1)
                 return RedirectToAction(nameof(Boards));
@@ -137,7 +177,7 @@ namespace QuietPlaceWebProject.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!await _dbBoard.Boards.AnyAsync(localBoard => localBoard.Id == boardId))
-                    return NotFound();
+                    return RedirectToAction("NotFoundPage", "Anon");
                 
                 throw;
             }
@@ -146,10 +186,6 @@ namespace QuietPlaceWebProject.Controllers
             
             return RedirectToAction(nameof(Boards));
         }
-
-        [AllowAnonymous]
-        [HttpGet]
-        public IActionResult NotFoundPage() => View();
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
@@ -162,27 +198,57 @@ namespace QuietPlaceWebProject.Controllers
             TempData["NotifyIsEnabled"] = true;
             TempData["NotifyCode"] = code;
         }
+
+        private static bool IsImage(string name)
+        {
+            var extension = Path.GetExtension(name);
+
+            return string.CompareOrdinal(extension, ".png") == 0 ||
+                   string.CompareOrdinal(extension, ".jpg") == 0 ||
+                   string.CompareOrdinal(extension, ".jpeg") == 0 ||
+                   string.CompareOrdinal(extension, ".bmp") == 0;
+
+        }
+
+        private void SaveImage(string name, IFormFile upload)
+        {
+            var path = _environment.ContentRootPath + @"\wwwroot\images\" + name;
+            var image = new Bitmap(upload.OpenReadStream());
+            using var fs = new FileStream(path, FileMode.Create);
+            image.Save(fs, ImageFormat.Png);
+        }
         
         private void InitialDatabase()
         {
             if (_dbBoard.Boards.Any()) 
                 return;
             
-            var defaultBoard = new Board
+            var firstBoard = new Board
             {
                 Name = "Разработка Имиджборды",
                 DomainName = "/dib/",
+                Description = "Доска для обсуждения разработки имиджборды",
+                ImageUrl = "dev_pic.png",
                 MaxCountOfThreads = 20,
                 IsHidden = false,
                 AccessRoleId = 1
             };
 
-            var defaultThread = new Thread
+            var firstThread = new Thread
             {
                 Name = "Проверка текста",
                 BoardId = 1,
                 HasBumpLimit = true,
                 PosterId = 1
+            };
+
+            var firstPost = new Post
+            {
+                Text = "Это первый пост в треде проверки текста.",
+                DateOfCreation = DateTime.Now,
+                IsOriginalPoster = true,
+                PosterId = 1,
+                ThreadId = 1,
             };
 
             var firstAnon = new User
@@ -201,24 +267,25 @@ namespace QuietPlaceWebProject.Controllers
             {
                 Name = "moderator"
             };
-
-            var bannedRole = new Role
-            {
-                Name = "banned"
-            };
-
-            var defaultRole = new Role
-            {
-                Name = "anon"
-            };
             
             var privilegedRole = new Role
             {
                 Name = "privileged"
             };
 
-            _dbBoard.Boards.Add(defaultBoard);
-            _dbBoard.Threads.Add(defaultThread);
+            var defaultRole = new Role
+            {
+                Name = "anon"
+            };
+
+            var bannedRole = new Role
+            {
+                Name = "banned"
+            };
+
+            _dbBoard.Boards.Add(firstBoard);
+            _dbBoard.Threads.Add(firstThread);
+            _dbBoard.Posts.Add(firstPost);
             _dbUser.Users.Add(firstAnon);
             _dbUser.Roles.Add(adminRole);
             _dbUser.Roles.Add(moderatorRole);

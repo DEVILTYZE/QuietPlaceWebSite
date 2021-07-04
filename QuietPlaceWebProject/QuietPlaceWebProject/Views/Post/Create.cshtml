@@ -1,4 +1,4 @@
-﻿@model IPost
+﻿@model Post
 
 @{
     ViewBag.Title = "Новый ответ";
@@ -21,50 +21,61 @@
 }
 else
 {
-    <h1>@ViewBag.Title</h1>
-
     <div class="container">
-        <form asp-action="Create" method="Post" enctype="multipart/form-data">
-            <input asp-for="PosterId" value="@ViewBag.PosterId" type="hidden"/>
-            <input asp-for="ThreadId" value="@ViewBag.ThreadId" type="hidden"/>
-            <div class="row">
-                <div class="col-sm">
+        <div class="row">
+            <div class="col">
+                <h1>@ViewBag.Title</h1>
+            </div>
+        </div>
+    </div>
+                      
+    <br>
+    <div class="container">
+        <div class="row">
+            <div class="col-8">
+                <form asp-action="Create" method="Post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input asp-for="PosterId" value="@ViewBag.PosterId" type="hidden"/>
+                    <input asp-for="ThreadId" value="@ViewBag.ThreadId" type="hidden"/>
                     <div class="container">
                         @EditorHelper.BuildEditorTools()
+                        <br>
                         @{
-                            var text = ViewBag.AnswerPost as string ?? string.Empty;
-                            
                             // Справа выводить пост, которому отвечают, если он есть.
                             <div class="row">
-                                <textarea name="textPost" id="textPost" type="text" cols="75" rows="15" 
-                                    placeholder="Ваш ответ..." style="resize: none" autofocus
-                                    oninput="countSymbols(this)">@text</textarea>
+                                <div class="col">
+                                    <textarea asp-for="Text" class="form-control bg-dark text-light" id="textPost" 
+                                        type="text" rows="15" placeholder="Ваш ответ..." style="resize: none" autofocus
+                                        oninput="countSymbols(this)"></textarea>
+                                </div>
                             </div>
+                            <div class="row">
+                                <div class="col-auto border-light">
+                                    @{
+                                        var length = Model.Text?.Length ?? 0;
+                                
+                                        <div id="countOfSymbols" style="justify-content: center">@(5000 - length)</div>
+                                    }
+                                </div>
+                            </div>
+                            <br>
                         }
                         @EditorHelper.BuildMediafileTool()
+                        <br>
                         @EditorHelper.BuildCaptchaTool(ViewBag.CaptchaImage as string ?? "NULL")
+                        <br>
+                        <div class="row">
+                            <div class="col-auto">
+                                <input type="submit" value="Отправить" class="btn btn-dark"/>
+                            </div>
+                            <div class="col-auto">
+                                <a asp-action="Posts" asp-controller="Post" asp-route-threadId="@ViewBag.ThreadId"
+                                   class="btn btn-dark">Отмена</a>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
-            <div class="row">
-                <div class="col-sm-auto">
-                    <input type="submit" value="Отправить" class="btn btn-default"/>
-                </div>
-                <div class="col-sm-auto">
-                    <a asp-action="Posts" asp-controller="Post" asp-route-threadId="@ViewBag.ThreadId"
-                       class="btn btn-default">
-                        Отмена
-                    </a>
-                </div>
-                <div class="col-sm-auto">
-                    @{
-                        int length = ViewBag.AnswerPost is string ? ViewBag.AnswerPost.Length : 0;
-                        
-                        <div id="countOfSymbols" style="align-content: center">@(5000 - length)</div>
-                    }
-                </div>
-            </div>
-        </form>
+        </div>
     </div>
-
 }

@@ -14,7 +14,6 @@ using QuietPlaceWebProject.Models;
 
 namespace QuietPlaceWebProject.Controllers
 {
-    [Authorize(Roles = "admin, moderator, anon")]
     public class PostController : Controller
     {
         private readonly BoardContext _dbBoard;
@@ -28,12 +27,11 @@ namespace QuietPlaceWebProject.Controllers
             _environment = environment;
         }
 
-        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Posts(int? threadId)
         {
             if (threadId is null)
-                return NotFound();
+                return RedirectToAction("NotFoundPage", "Anon");
             
             if (TempData is not null)
             {
@@ -53,25 +51,39 @@ namespace QuietPlaceWebProject.Controllers
         public async Task<IActionResult> Create(int? threadId)
         {
             if (threadId is null)
-                return NotFound();
+                return RedirectToAction("NotFoundPage", "Anon");
+
+            if (TempData["IsBanned"] is null)
+                return RedirectToAction("IsBanned", "Anon", new {threadId});
             
+            var thread = await _dbBoard.Threads.FindAsync(threadId);
+            
+            if (thread.HasBumpLimit &&
+                (await _dbBoard.Posts.Where(localPost => localPost.ThreadId == threadId).CountAsync()) > 500)
+            {
+                _dbBoard.Threads.Remove(thread);
+                await _dbBoard.SaveChangesAsync();
+
+                return RedirectToAction("Threads", "Thread", new {thread.BoardId});
+            }
+
+            var post = new Post();
             var ipAddressOfUser = await AnonController.GetUserIpAddress();
             var posters = _dbUser.Users.Where(localUser => localUser.IpAddress == ipAddressOfUser).ToList();
             var posterId = posters.Count == 1 ? posters.First().Id : -1;
-            var answerId = TempData["AnswerId"] as int? ?? -1;
+            var answerId = TempData["AnswerId"] as string;
 
             if (posterId == -1)
                 return RedirectToAction("Create", "Anon", new { threadId });
             
-            if (answerId != -1)
-                ViewBag.AnswerPost = ">>" + answerId + "\n";
+            if (answerId is not null)
+                post.Text = ">>" + answerId + "\r\n";
 
             var isOriginalPoster = TempData["IsOP"] as bool? ?? false;
 
             if (isOriginalPoster)
             {
                 TempData["CaptchaWord"] = null;
-                var thread = await _dbBoard.Threads.FindAsync(threadId);
                 
                 try
                 {
@@ -82,61 +94,62 @@ namespace QuietPlaceWebProject.Controllers
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!await _dbBoard.Threads.AnyAsync(localThread => localThread.Id == thread.Id))
-                        return NotFound();
+                        return RedirectToAction("NotFoundPage", "Anon");
                 
                     throw;
                 }
             }
-            else
+            else if (!await IsHighRole())
                 await SetCaptcha();
             
             ViewBag.TextPost = TempData["TextPost"];
             ViewBag.ThreadId = threadId;
             ViewBag.PosterId = posterId;
             
-            return View();
+            return View(post);
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(
             [Bind("Id, Text, DateOfCreation, PosterId, PostOfTovarishchId, IsOriginalPoster, ThreadId")]
-            Post post, string textPost, string captchaWord)
+            Post post, string captchaWord)
         {
             post.DateOfCreation = DateTime.Now;
             post.IsOriginalPoster = IsOriginalPoster(post.PosterId, post.ThreadId);
 
-            textPost = GetText(post, textPost);
+            var textPost = post.Text;
+            post.Text = TextHelper.RemoveTags(post.Text);
 
             var captchaWordValid = TempData["CaptchaWord"] as string ?? "NULL";
             captchaWord ??= "NULL";
             
-            if (!ModelState.IsValid || textPost is null || textPost.Length == 0 || post.Text.Length >= 5000 ||
+            if (!ModelState.IsValid || post.Text.Length == 0 ||
                 string.CompareOrdinal(captchaWord.ToUpper(), captchaWordValid.ToUpper()) != 0)
             {
-                await SetCaptcha();
-                
+                if (!await IsHighRole())
+                    await SetCaptcha();
+
+                post.Text = textPost;
                 ViewBag.ThreadId = post.ThreadId;
                 ViewBag.PosterId = post.PosterId;
                 
                 return View(post);
             }
+            
+            post.Text = textPost;
 
             _dbBoard.Posts.Add(post);
             await _dbBoard.SaveChangesAsync();
-            SetNotificationInfo(1);
 
             return RedirectToAction(nameof(Posts), new { threadId = post.ThreadId });
         }
-
-        private bool IsOriginalPoster(int posterId, int threadId)
-            => _dbBoard.Threads.Any(thread => thread.PosterId == posterId && thread.Id == threadId);
 
         [Authorize(Roles = "admin, moderator")]
         [HttpGet]
         public async Task<IActionResult> Remove(int? postId)
         {
             if (postId is null)
-                return NotFound();
+                return RedirectToAction("NotFoundPage", "Anon");
 
             var post = await _dbBoard.Posts.FindAsync(postId);
 
@@ -158,12 +171,10 @@ namespace QuietPlaceWebProject.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!await _dbBoard.Posts.AnyAsync(localPost => localPost.Id == postId))
-                    return NotFound();
+                    return RedirectToAction("NotFoundPage", "Anon");
                 
                 throw;
             }
-            
-            SetNotificationInfo(-1);
 
             return RedirectToAction(nameof(Posts), new { post.ThreadId });
         }
@@ -171,16 +182,30 @@ namespace QuietPlaceWebProject.Controllers
         [HttpGet]
         public IActionResult ToAnswer(int? threadId, int? postId)
         {
-            TempData["AnswerId"] = postId;
+            if (threadId is null || postId is null)
+                return RedirectToAction("NotFoundPage", "Anon");
+
+            var originalPost = _dbBoard.Posts.First(localPost => localPost.ThreadId == threadId);
+
+            if (originalPost.Id == postId)
+                TempData["AnswerId"] = postId + " (OP)";
+            else
+                TempData["AnswerId"] = postId.ToString();
 
             return RedirectToAction(nameof(Create), new { threadId });
         }
-
-        private void SetNotificationInfo(int code)
+        
+        private async Task<bool> IsHighRole()
         {
-            TempData["NotifyIsEnabled"] = true;
-            TempData["NotifyCode"] = code;
+            var ipAddress = await AnonController.GetUserIpAddress();
+            var user = await _dbUser.Users.Where(localUser 
+                    => string.Compare(localUser.IpAddress, ipAddress) == 0).FirstAsync();
+
+            return user.RoleId <= 3;
         }
+        
+        private bool IsOriginalPoster(int posterId, int threadId)
+            => _dbBoard.Threads.Any(thread => thread.PosterId == posterId && thread.Id == threadId);
 
         // Captcha
         private async Task SetCaptcha()
@@ -188,19 +213,6 @@ namespace QuietPlaceWebProject.Controllers
             var captcha = await GetCaptchaAsync();
             ViewBag.CaptchaImage = captcha.ImageUrl;
             TempData["CaptchaWord"] = captcha.Word;
-        }
-
-        private static string GetText(IPost post, string textPost)
-        {
-            if (!string.IsNullOrEmpty(textPost) || !string.IsNullOrWhiteSpace(textPost))
-            {
-                post.Text = textPost.Trim();
-                textPost = TextHelper.RemoveTags(post.Text);
-            }
-            else if (!string.IsNullOrEmpty(post.Text) || !string.IsNullOrWhiteSpace(post.Text))
-                textPost = TextHelper.RemoveTags(post.Text);
-
-            return textPost;
         }
 
         private async Task<ICaptcha> GetCaptchaAsync()

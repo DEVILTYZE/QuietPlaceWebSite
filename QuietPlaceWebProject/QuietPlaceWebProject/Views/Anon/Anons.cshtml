@@ -6,121 +6,141 @@
 }
 
 <div class="container">
-    <div class="row">
-        <a class="col-sm" asp-action="Anons">
-            Аноны
-        </a>
-        <a class="col-sm" asp-action="Roles" asp-controller="Role">
-            Роли
-        </a>
+    <div class="row justify-content-around">
+        <div class="col-auto">
+            <a asp-action="Anons" class="btn btn-dark">Аноны</a>
+        </div>
+        <div class="col-auto">
+            <a asp-action="Roles" asp-controller="Role" class="btn btn-dark">Роли</a>
+        </div>
     </div>
 </div>
 
-<h1>@ViewBag.Title</h1>
+<br>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>@ViewBag.Title</h1>
+        </div>
+    </div>
+</div>
 
-<table>
-    <tr>
-        <td>ID</td>
-        <td>IP-адрес</td>
-        <td>Роль</td>
-        <td>Пасскод</td>
-        <td>Статус</td>
-        <td>Действие</td>
-    </tr>
-        @{
-            var roles = (Dictionary<int, string>) ViewBag.Roles;
-            
-            foreach (var user in Model)
+<br>
+<div class="container">
+    @if (!Model.Any())
+    {
+        <div class="row">
+            <div class="col">
+               <h2>@ViewBag.Message</h2> 
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="container">
+            <form asp-action="GeneratePasscode" method="get">
+                <div class="row justify-content-end">
+                        <div class="col-auto">
+                            <input type="submit" class="btn btn-dark" value="Сгенерировать пасскод"/>
+                        </div>
+                        <div class="col-auto"> для роли </div>
+                        <div class="col-auto">
+                            <select asp-items="ViewBag.Roles" name="roleId" class="bg-dark text-light"></select>
+                        </div>
+                </div>
+            </form>
+            @if (ViewBag.PasscodeMessage is not null)
             {
-                <tr>
-                    <td>
-                        @user.Id
-                    </td>
-                    <td>
-                        @user.IpAddress
-                    </td>
-                    <td>
-                        @roles[user.RoleId]
-                    </td>
-                    <td>
-                        @user.Passcode
-                    </td>
-                    <td>
-                        <select>
-                            <option>
-                                <a asp-action="Remove" asp-route-userId="@user.Id">Удалить анонима</a>
-                            </option>
-                            <option>
-                            @if (user.RoleId == 3)
-                            {
-                                <div>Забанен</div>
-                                <div>
-                                    <a asp-action="Ban" asp-route-userId="@user.Id" asp-route-isBan="false">Разбанить</a>
-                                </div>
-                            }
-                            else
-                            {
-                                <div>Активен</div>
-                                <div>
-                                    <a asp-action="Ban" asp-route-userId="@user.Id" asp-route-isBan="true">Забанить</a>
-                                </div>
-                            }
-                            </option>
-                        </select>
-                    </td>
-                </tr>
+                <div class="row justify-content-end">
+                    <div class="col-auto">
+                        @ViewBag.PasscodeMessage
+                    </div>
+                </div>
             }
-        }
-</table>
+        </div>
+        <table class="table text-light">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>IP-адрес</th>
+                <th>Роль</th>
+                <th>Пасскод</th>
+                <th>Статус</th>
+                <th>Действие</th>
+            </tr>
+            </thead>
+            <tbody>
+            @{
+                foreach (var user in Model)
+                {
+                    <tr>
+                        <th>@user.Id</th>
+                        <td>@user.IpAddress</td>
+                        <td><select asp-items="ViewBag.Roles" class="bg-dark text-light">
+                            <option selected="selected" disabled="disabled">
+                                @foreach (var item in (SelectList) ViewBag.Roles)
+                                {
+                                    if (user.RoleId != int.Parse(item.Value))
+                                        continue;
+                                    
+                                    <div>
+                                        @item.Text
+                                    </div>
+                                    break;
+                                }
+                            </option>
+                        </select></td>
+                        <td>@user.Passcode</td>
+                        @if (user.RoleId == 5)
+                        {
+                            <td>Забанен</td>
+                        }
+                        else
+                        {
+                            <td>Активен</td>
+                        }
+                        <td>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-auto">
+                                        <div class="btn-group">
+                                            <a asp-action="GeneratePasscode" asp-route-userId="@user.Id"
+                                               class="btn btn-dark">Сгенерировать пасскод</a>
+                                            @{
+                                                var removeAnon = "disabled";
+                                                var banAnon = "disabled";
 
-@* <div class="container"> *@
-@*     <div class="row"> *@
-@*         <div class="col-sm">ID</div> *@
-@*         <div class="col-sm">IP-адрес</div> *@
-@*         <div class="col-sm">Роль</div> *@
-@*         <div class="col-sm">Пасскод</div> *@
-@*         <div class="col-sm">Статус</div> *@
-@*         <div class="col-sm">Действие</div> *@
-@*     </div> *@
-@*     @{ *@
-@*         var roles = (Dictionary<int, string>) ViewBag.Roles; *@
-@*          *@
-@*         foreach (var user in Model) *@
-@*         { *@
-@*             var passcode = ((List<Passcode>) ViewBag.Passcodes).Find(localPasscode  *@
-@*                 => localPasscode.Id == user.PasscodeId); *@
-@* *@
-@*             <div class="row"> *@
-@*                 <div class="col-sm"> *@
-@*                     @user.Id *@
-@*                 </div> *@
-@*                 <div class="col-sm"> *@
-@*                     @user.IpAddress *@
-@*                 </div> *@
-@*                 <div class="col-sm"> *@
-@*                     @if (passcode is not null) *@
-@*                     { *@
-@*                         @roles[passcode.RoleId] *@
-@*                     } *@
-@*                 </div> *@
-@*                 <div class="col-sm"> *@
-@*                     @passcode?.Code *@
-@*                 </div> *@
-@*                 @if (user.IsBanned) *@
-@*                 { *@
-@*                     <div class="col-sm">Забанен</div> *@
-@*                     <div class="col-sm"> *@
-@*                         <a asp-action="BanUnBan" asp-route-userId="@user.Id" asp-route-isBan="false">Разбанить</a> *@
-@*                     </div> *@
-@*                 } *@
-@*                 else *@
-@*                 { *@
-@*                     <div class="col-sm">Активен</div> *@
-@*                     <div class="col-sm"> *@
-@*                         <a asp-action="BanUnBan" asp-route-userId="@user.Id" asp-route-isBan="true">Забанить</a> *@
-@*                     </div> *@
-@*                 } *@
-@*             </div> *@
-@*         } *@
-@*     } *@
-@* </div> *@
+                                                if (user.Id != 1)
+                                                {
+                                                    removeAnon = string.Empty;
+
+                                                    if (user.RoleId == 5)
+                                                        banAnon = string.Empty;
+                                                }
+
+                                                <a asp-action="Remove" asp-route-userId="@user.Id"
+                                                   class="btn btn-dark @removeAnon">Удалить анонима</a>
+                                                
+                                                if (user.RoleId == 5)
+                                                {
+                                                    <a asp-action="Ban" asp-route-userId="@user.Id"
+                                                       class="btn btn-dark @banAnon">Разбанить</a>
+                                                }
+                                                else
+                                                {
+                                                    <a asp-action="Ban" asp-route-userId="@user.Id"
+                                                       class="btn btn-dark @banAnon" asp-route-action="true">Забанить</a>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    }
+</div>

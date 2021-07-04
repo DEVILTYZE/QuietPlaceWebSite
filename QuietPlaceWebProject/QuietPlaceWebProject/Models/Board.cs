@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Mvc;
 using QuietPlaceWebProject.Interfaces;
@@ -20,7 +21,17 @@ namespace QuietPlaceWebProject.Models
         [StringLength(5, MinimumLength = 5, ErrorMessage = "Домен должен быть трёхсимвольным.")]
         [Display(Name = "Домен: ")]
         public string DomainName { get; set; }
-        
+
+        [Required]
+        [HiddenInput(DisplayValue = false)]
+        [DefaultValue(true)]
+        public string ImageUrl { get; set; } = "question_pic.png";
+
+        [Required]
+        [StringLength(300, MinimumLength = 10, ErrorMessage = "Длина описания должна быть от 10 до 300 символов")]
+        [Display(Name = "Описание: ")]
+        public string Description { get; set; }
+
         [Required]
         [Display(Name = "Максимальное количество тредов на доске: ")]
         [Range(2, 50, ErrorMessage = "Максимальное количество должно быть в диапазоне от 2 до 50.")]

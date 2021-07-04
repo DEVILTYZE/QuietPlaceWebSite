@@ -46,8 +46,8 @@ namespace QuietPlaceWebProject
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options => //CookieAuthenticationOptions
                 {
-                    options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Board/NotFoundPage");
-                    options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Board/NotFoundPage");
+                    options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Anon/NotFoundPage");
+                    options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Anon/NotFoundPage");
                 });
             services.AddControllersWithViews();
         }

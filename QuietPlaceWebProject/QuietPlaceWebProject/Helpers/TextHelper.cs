@@ -25,8 +25,18 @@ namespace QuietPlaceWebProject.Helpers
         public static HtmlString BuildText(string text)
         {
             // Ответы (пример: ">>1").
-            var answerIdsStrings = GetStringsWithRegex(text, @">>\d+", RegexOptions.None);
-            text = GetTextWithTag(text, answerIdsStrings, "a",
+            var answerIdsStrings = GetStringsWithRegex(text, 
+                @">>\d+", RegexOptions.None);
+            var answerIdsStringsOriginalPoster = GetStringsWithRegex(text, 
+                @">>\d+ \(OP\)", RegexOptions.None).ToList();
+
+            foreach (var str in answerIdsStrings)
+            {
+                if (!answerIdsStringsOriginalPoster.Contains(str + " (OP)"))
+                    answerIdsStringsOriginalPoster.Add(str);
+            }
+            
+            text = GetTextWithTag(text, answerIdsStringsOriginalPoster, "a",
                 new KeyValuePair<string, string>("style", "color: #ff6600"), false, true);
             
             // Гринтекст (пример: ">текст").

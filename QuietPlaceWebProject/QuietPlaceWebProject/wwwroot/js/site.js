@@ -74,7 +74,7 @@ function countSymbols(textForm) {
     
     try {
         textlength = textForm.value.length;
-    } catch {
+    } catch (err) {
         textlength = textForm.val().length;
     }
     

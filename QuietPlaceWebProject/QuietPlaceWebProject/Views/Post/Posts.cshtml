@@ -4,67 +4,111 @@
     Layout = "_Layout";
 }
 
-<table>
-    <tr>
-        <td>
+<div class="container">
+    <div class="row">
+        <div class="col">
             <h1>@ViewBag.Title</h1>
-        </td>
-        <td>
-            <a asp-action="Remove" asp-controller="Thread" asp-route-threadId="@ViewBag.ThreadId" 
-               class="btn btn-default" method="get">
-                Удалить тред
-            </a>
-        </td>
-        <td>
-            <a asp-action="Create" asp-route-threadId="@ViewBag.ThreadId" 
-               class="btn btn-default" method="get">
-                Ответить в тред
-            </a>
-        </td>
-    </tr>
-</table>
+        </div>
+        <div class="col">
+            <div class="row justify-content-end">
+                <div class="col-auto">
+                    <a asp-action="Remove" asp-controller="Thread" asp-route-threadId="@ViewBag.ThreadId" 
+                       class="btn btn-dark" method="get">Удалить тред</a>
+                </div>
+                <div class="col-auto">
+                    <a asp-action="Create" asp-route-threadId="@ViewBag.ThreadId" class="btn btn-dark" 
+                       method="get">Ответить в тред</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-<div class="container" style="word-wrap: break-word">
+<br>
+<div class="container">
     @{
         var count = 1;
         
         foreach (var post in Model)
         {
-            <div class="container">
-                <div class="row">
-                    <div id="post @post.Id" class="col-sm-auto">
-                        Аноним
-                    </div>
-                    @if (post.IsOriginalPoster)
-                    {
-                        <div class="col-sm-auto">
-                            <label>ОП</label>
+            if (count == 1)
+            {
+                <div class="container">
+                    <div class="row">
+                        <div id="post @post.Id" class="col-auto">
+                            Аноним
                         </div>
-                    }
-                    <div class="col-sm-auto">
-                        @post.DateOfCreation.ToString("F")
+                        @if (post.IsOriginalPoster)
+                        {
+                            <div class="col-auto">
+                                <label>ОП</label>
+                            </div>
+                        }
+                        <div class="col-auto">
+                            @post.DateOfCreation.ToString("F")
+                        </div>
+                        <div class="col-auto">
+                            ID: @post.Id
+                        </div>
+                        <div class="col-auto">
+                            @count
+                        </div>
+                        <div class="col-auto">
+                            <a asp-action="ToAnswer" asp-route-threadId="@post.ThreadId" asp-route-postId="@post.Id"
+                               class="btn btn-secondary">Ответить</a>
+                        </div>
                     </div>
-                    <div class="col-sm-auto">
-                        ID: @post.Id
+                    <div class="row">
+                        <div class="col text-wrap text-break" style="font-size: larger">
+                            @TextHelper.BuildText(post.Text)
+                        </div>
                     </div>
-                    <div class="col-sm-auto">
-                        @count
+                    
+                    <br>
+                    <hr class="straight-line">
+                </div>
+                <br>
+            }
+            else
+            {
+                <div class="card bg-dark text-light">
+                    <div class="card-header">
+                        <div class="row">
+                            <div id="post @post.Id" class="col-auto">
+                                Аноним
+                            </div>
+                            @if (post.IsOriginalPoster)
+                            {
+                                <div class="col-auto">
+                                    <label>ОП</label>
+                                </div>
+                            }
+                            <div class="col-auto">
+                                @post.DateOfCreation.ToString("F")
+                            </div>
+                            <div class="col-auto">
+                                ID: @post.Id
+                            </div>
+                            <div class="col-auto">
+                                @count
+                            </div>
+                            <div class="col-auto">
+                                <a asp-action="ToAnswer" asp-route-threadId="@post.ThreadId" asp-route-postId="@post.Id"
+                                   class="btn btn-secondary">Ответить</a>
+                            </div>
+                            <div class="col-auto">
+                                <a asp-action="Remove" asp-route-postId="@post.Id" class="btn btn-secondary">Удалить пост</a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-sm-auto">
-                        <a asp-action="ToAnswer" asp-route-threadId="@post.ThreadId" asp-route-postId="@post.Id">
-                            Ответить
-                        </a>
-                    </div>
-                    <div class="col-sm-auto">
-                        <a asp-action="Remove" asp-route-postId="@post.Id">Удалить пост</a>
+                    <div class="card-body">
+                        <div class="col text-wrap text-break">
+                            @TextHelper.BuildText(post.Text)
+                        </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-sm-auto">
-                        <div class="div-post">@TextHelper.BuildText(post.Text)</div>
-                    </div>
-                </div>
-            </div>
+                <br>
+            }
             
             ++count;
         }
