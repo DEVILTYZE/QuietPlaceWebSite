@@ -19,9 +19,13 @@
         <div class="col">
             <h2>Вы точно хотите удалить @Model.Name?</h2>
         </div>
+    </div>
+    <div class="row">
         <div class="col">
             <p>@Model.Description</p>
         </div>
+    </div>
+    <div class="row">
         <div class="col">
             <form asp-action="Remove" method="Post">
                 <input type="hidden" name="boardId" asp-for="Id" />

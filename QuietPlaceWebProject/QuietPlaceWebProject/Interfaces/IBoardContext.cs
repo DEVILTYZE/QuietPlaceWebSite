@@ -8,6 +8,6 @@ namespace QuietPlaceWebProject.Interfaces
         DbSet<Board> Boards { get; set; }
         DbSet<Thread> Threads { get; set; }
         DbSet<Post> Posts { get; set; }
-        DbSet<MediaFile> MediaFiles { get; set; }
+        // DbSet<MediaFile> MediaFiles { get; set; }
     }
 }

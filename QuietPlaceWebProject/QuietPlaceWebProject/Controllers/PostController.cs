@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
@@ -41,7 +43,7 @@ namespace QuietPlaceWebProject.Controllers
             
             var posts = await _dbBoard.Posts.Where(post => post.ThreadId == threadId).ToListAsync();
             var thread = await _dbBoard.Threads.FindAsync(threadId);
-            ViewBag.ThreadId = threadId;
+            ViewBag.Thread = thread;
             ViewBag.Title = thread.Name;
             
             return View(posts);
@@ -111,18 +113,20 @@ namespace QuietPlaceWebProject.Controllers
 
         [HttpPost]
         public async Task<IActionResult> Create(
-            [Bind("Id, Text, DateOfCreation, PosterId, PostOfTovarishchId, IsOriginalPoster, ThreadId")]
-            Post post, string captchaWord)
+            [Bind("Id, Text, DateOfCreation, PosterId, IsOriginalPoster, ThreadId")]
+            Post post, IFormFile upload, string captchaWord)
         {
             post.DateOfCreation = DateTime.Now;
             post.IsOriginalPoster = IsOriginalPoster(post.PosterId, post.ThreadId);
 
             var textPost = post.Text;
-            post.Text = TextHelper.RemoveTags(post.Text);
+            
+            if (post.Text is not null)
+                post.Text = TextHelper.RemoveTags(post.Text);
 
             var captchaWordValid = TempData["CaptchaWord"] as string ?? "NULL";
             captchaWord ??= "NULL";
-            
+
             if (!ModelState.IsValid || post.Text.Length == 0 ||
                 string.CompareOrdinal(captchaWord.ToUpper(), captchaWordValid.ToUpper()) != 0)
             {
@@ -135,10 +139,16 @@ namespace QuietPlaceWebProject.Controllers
                 
                 return View(post);
             }
+
+            if (upload is not null)
+                await SaveFile(upload, post);
             
             post.Text = textPost;
 
             _dbBoard.Posts.Add(post);
+            await _dbBoard.SaveChangesAsync();
+
+            _dbBoard.Entry(post).State = EntityState.Modified;
             await _dbBoard.SaveChangesAsync();
 
             return RedirectToAction(nameof(Posts), new { threadId = post.ThreadId });
@@ -161,10 +171,15 @@ namespace QuietPlaceWebProject.Controllers
         public async Task<IActionResult> Remove(int postId)
         {
             Post post;
+            var path = _environment.ContentRootPath + @"\wwwroot\files\";
             
             try
             {
                 post = await _dbBoard.Posts.FindAsync(postId);
+                
+                if (post.MediaUrl is not null)
+                    System.IO.File.Delete(path + post.MediaUrl);
+                
                 _dbBoard.Posts.Remove(post);
                 await _dbBoard.SaveChangesAsync();
             }
@@ -193,6 +208,118 @@ namespace QuietPlaceWebProject.Controllers
                 TempData["AnswerId"] = postId.ToString();
 
             return RedirectToAction(nameof(Create), new { threadId });
+        }
+        
+        private async Task SaveFile(IFormFile file, IPost post)
+        {
+            var name = Path.GetFileName(file.FileName);
+            var path = _environment.ContentRootPath + @"\wwwroot\files\" + name;
+            var count = 2;
+            
+            if (!GetTypeFile(name))
+                return;
+            
+            while (System.IO.File.Exists(path))
+            {
+                var index = name.LastIndexOf('.');
+                name = name[..^(name.Length - index - 1)] + count + name[index..];
+                path = _environment.ContentRootPath + @"\wwwroot\files\" + name;
+                ++count;
+            }
+            
+            await using var fs = new FileStream(path, FileMode.Create); 
+            await file.CopyToAsync(fs);
+
+            post.MediaUrl = name;
+        }
+        
+        // private async Task SaveFiles(IFormFileCollection files, IPost post)
+        // {
+        //     var countFiles = 0;
+        //     
+        //     foreach (var file in files)
+        //     {
+        //         if (file.Length > 1000000)
+        //             continue;
+        //         
+        //         var name = Path.GetFileName(file.FileName);
+        //         var path = _environment.ContentRootPath + @"\wwwroot\files\" + name;
+        //         var count = 2;
+        //
+        //         while (System.IO.File.Exists(path))
+        //         {
+        //             var index = name.LastIndexOf('.');
+        //             name = name[..^(name.Length - index - 1)] + count + name[index..];
+        //             path = _environment.ContentRootPath + @"\wwwroot\files\" + name;
+        //             ++count;
+        //         }
+        //         
+        //         var mediaFile = new MediaFile
+        //         {
+        //             Url = name,
+        //             PostId = post.Id
+        //         };
+        //         
+        //         if (!SetTypeForFile(mediaFile))
+        //             continue;
+        //
+        //         using var fs = new FileStream(path, FileMode.Create);
+        //         await file.CopyToAsync(fs);
+        //
+        //         await _dbBoard.MediaFiles.AddAsync(mediaFile);
+        //
+        //         ++countFiles;
+        //         
+        //         if (countFiles == 4)
+        //             break;
+        //
+        //     }
+        //
+        //     await _dbBoard.SaveChangesAsync();
+        //     post.MediaFiles = await _dbBoard.MediaFiles.Where(localFile => localFile.PostId == post.Id).ToListAsync();
+        // }
+
+        // public static bool SetTypeForFile(IMediaFile file)
+        // {
+        //     var extension = Path.GetExtension(file.Url);
+        //
+        //     if (string.Compare(extension, ".jpg") == 0 || string.Compare(extension, ".jpeg") == 0 ||
+        //         string.Compare(extension, ".png") == 0 || string.Compare(extension, ".bmp") == 0)
+        //     {
+        //         file.Type = "image";
+        //         
+        //         return true;
+        //     }
+        //
+        //     if (string.Compare(extension, ".mp3") == 0)
+        //     {
+        //         file.Type = "audio";
+        //         
+        //         return true;
+        //     }
+        //
+        //     if (string.Compare(extension, ".mp4") == 0 || string.Compare(extension, ".webm") == 0)
+        //     {
+        //         file.Type = "video";
+        //         
+        //         return true;
+        //     }
+        //
+        //     return false;
+        // }
+        
+        public static bool GetTypeFile(string url)
+        {
+            var extension = Path.GetExtension(url);
+
+            if (string.Compare(extension, ".jpg") == 0 || string.Compare(extension, ".jpeg") == 0 ||
+                string.Compare(extension, ".png") == 0 || string.Compare(extension, ".bmp") == 0)
+                return true;
+
+            if (string.Compare(extension, ".mp3") == 0)
+                return true;
+
+            return string.Compare(extension, ".mp4") == 0 || string.Compare(extension, ".webm") == 0;
         }
         
         private async Task<bool> IsHighRole()

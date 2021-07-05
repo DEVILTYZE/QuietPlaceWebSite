@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using QuietPlaceWebProject.Models;
 
 namespace QuietPlaceWebProject.Interfaces
 {
@@ -16,6 +18,8 @@ namespace QuietPlaceWebProject.Interfaces
         bool IsOriginalPoster { get; set; }
         
         int ThreadId { get; set; }
+        
+        string MediaUrl { get; set; }
 
         // IEnumerable<int> ReworkTextPost();
         //

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Mvc;
@@ -31,5 +32,8 @@ namespace QuietPlaceWebProject.Models
         [Required]
         [HiddenInput(DisplayValue = false)]
         public int ThreadId { get; set; }
+
+        [HiddenInput(DisplayValue = false)]
+        public string MediaUrl { get; set; }
     }
 }

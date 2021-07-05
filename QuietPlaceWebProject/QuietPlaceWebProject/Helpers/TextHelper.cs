@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
@@ -20,6 +21,32 @@ namespace QuietPlaceWebProject.Helpers
                 => current.Replace(t, string.Empty));
 
             return text;
+        }
+
+        public static HtmlString BuildMediaFiles(string file)
+        {
+            var tagString = GetTypeFile(file) switch
+            {
+                "image" => "img",
+                "audio" => "audio",
+                "video" => "video",
+                _ => "NULL"
+            };
+
+            string tag;
+            var tagBuilder = new TagBuilder(tagString);
+            tagBuilder.Attributes.Add(new KeyValuePair<string, string>("src", "/files/" + file));
+            tagBuilder.Attributes.Add(new KeyValuePair<string, string>("style", "max-height: 400px; max-width: 250px;"));
+            
+            if (string.Compare("img", tagString) == 0)
+            {
+                tagBuilder.AddCssClass("img-fluid");
+                tag = tagBuilder.ToString(TagRenderMode.SelfClosing);
+            }
+            else
+                tag = tagBuilder.ToString();
+            
+            return new HtmlString(tag);
         }
         
         public static HtmlString BuildText(string text)
@@ -150,6 +177,23 @@ namespace QuietPlaceWebProject.Helpers
             }
 
             return result;
+        }
+
+        private static string GetTypeFile(string url)
+        {
+            var extension = Path.GetExtension(url);
+
+            if (string.Compare(extension, ".jpg") == 0 || string.Compare(extension, ".jpeg") == 0 ||
+                string.Compare(extension, ".png") == 0 || string.Compare(extension, ".bmp") == 0)
+                return "image";
+
+            if (string.Compare(extension, ".mp3") == 0)
+                return "audio";
+
+            if (string.Compare(extension, ".mp4") == 0 || string.Compare(extension, ".webm") == 0)
+                return "video";
+
+            return "NULL";
         }
     }
 }

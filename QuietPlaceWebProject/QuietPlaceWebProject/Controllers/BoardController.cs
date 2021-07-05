@@ -161,17 +161,33 @@ namespace QuietPlaceWebProject.Controllers
         [HttpPost]
         public async Task<IActionResult> Remove(int boardId)
         {
+            var path = _environment.ContentRootPath + @"\wwwroot\files\";
+            var path2 = _environment.ContentRootPath + @"\wwwroot\images\";
+            
             try
             {
                 var threads = _dbBoard.Threads.Where(thread => thread.BoardId == boardId).ToList();
 
                 foreach (var posts in threads.Select(
                     thread => _dbBoard.Posts.Where(post => post.ThreadId == thread.Id).ToList()))
-                    _dbBoard.Posts.RemoveRange(posts);
+                {
+                    foreach (var post in posts.Where(post => post.MediaUrl is not null))
+                        System.IO.File.Delete(path + post.MediaUrl);
 
+                    _dbBoard.Posts.RemoveRange(posts);
+                }
+                
                 _dbBoard.Threads.RemoveRange(threads);
-            
-                _dbBoard.Boards.Remove(await _dbBoard.Boards.FindAsync(boardId));
+                
+                foreach (var thread in threads.Where(thread => thread.MediaUrl is not null))
+                    System.IO.File.Delete(path + thread.MediaUrl);
+
+                var board = await _dbBoard.Boards.FindAsync(boardId);
+                
+                if (board.ImageUrl is not null)
+                    System.IO.File.Delete(path2 + board.ImageUrl);
+                
+                _dbBoard.Boards.Remove(board);
                 await _dbBoard.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)

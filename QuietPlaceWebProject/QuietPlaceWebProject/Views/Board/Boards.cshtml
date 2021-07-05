@@ -27,14 +27,17 @@
         {
             <div class="col">
                 <div class="card" style="width: 14rem;">
-                    <img src="@Url.Content("~/images/")@board.ImageUrl" alt="" />
-                    <div class="card-body bg-dark text-light">
-                        <a asp-action="Threads" asp-controller="Thread" asp-route-boardId="@board.Id" 
-                           class="btn btn-secondary" id="a-button" >@board.Name</a>
-                        <p class="card-text">@board.Description</p>
-                    </div>
+                    <a asp-action="Threads" asp-controller="Thread" asp-route-boardId="@board.Id" 
+                       class="text-decoration-none">
+                        <img class="card-img-top" src="@Url.Content("~/images/")@board.ImageUrl" alt="" />
+                        <div class="card-body bg-dark text-light">
+                            <h5>@board.Name</h5>
+                            <p class="card-text">@board.Description</p>
+                        </div>
+                    </a>
                 </div>
             </div>
+            <br>
         }
     </div>
 </div>

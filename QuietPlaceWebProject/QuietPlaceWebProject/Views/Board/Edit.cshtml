@@ -44,12 +44,6 @@
                     <input asp-for="IsHidden" type="checkbox" class="form-control  bg-dark text-light" unchecked />
                     <span asp-validation-for="IsHidden" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="AccessRoleId" class="control-label"></label>
-                    <select asp-for="AccessRoleId" asp-items="ViewBag.Roles" 
-                            class="form-control bg-dark text-light"></select>
-                    <span asp-validation-for="AccessRoleId" class="text-danger"></span>
-                </div>
                  <div class="form-group">
                     <label asp-for="Description" class="control-label"></label>
                     <textarea asp-for="Description" class="form-control bg-dark text-light" cols="75" rows="15"></textarea>
@@ -62,7 +56,7 @@
                 {
                     <div class="form-group">
                         <a asp-action="Remove" asp-controller="Board" asp-route-boardId="@Model.Id" 
-                           class="btn btn">Удалить доску</a>
+                           class="btn btn-dark">Удалить доску</a>
                     </div>
                 }
             </form>
@@ -71,7 +65,7 @@
             <label class="control-label">Обложка доски</label>
             @if (Model.ImageUrl != null)
             {
-                <img src="@Url.Content("~/images/")@Model.ImageUrl" alt="" />
+                <img src="@Url.Content("~/images/")@Model.ImageUrl" alt="" style="max-height: 400px; max-width: 250px;" />
             }
         </div>
     </div>

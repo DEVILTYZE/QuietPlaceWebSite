@@ -48,55 +48,6 @@ namespace QuietPlaceWebProject.Helpers
             return new HtmlString(row.ToString());
         }
         
-        public static HtmlString BuildMediafileTool()
-        {
-            var img = new TagBuilder("img");
-            img.Attributes.Add(new KeyValuePair<string, string>("src", 
-                "../images/file.png"));
-
-            var div = new TagBuilder("div");
-
-            var input = new TagBuilder("input");
-            input.Attributes.Add(new KeyValuePair<string, string>("id", "inputFile"));
-            input.Attributes.Add(new KeyValuePair<string, string>("type", "file"));
-
-            var label = new TagBuilder("label");
-            label.Attributes.Add(new KeyValuePair<string, string>("for", "inputFile"));
-            label.SetInnerText("Выберите файл");
-
-            var span = new TagBuilder("div");
-            span.SetInnerText("или перетащите его сюда");
-
-            div.InnerHtml += input.ToString(TagRenderMode.SelfClosing);
-            div.InnerHtml += label.ToString();
-            div.InnerHtml += span.ToString();
-
-            var mainDiv = new TagBuilder("div");
-            mainDiv.AddCssClass("upload-container");
-            mainDiv.Attributes.Add(new KeyValuePair<string, string>(
-                "id", "inputForm"));
-            mainDiv.Attributes.Add(new KeyValuePair<string, string>(
-                "ondragenter", "changeClass(this, 'dragover')"));
-            mainDiv.Attributes.Add(new KeyValuePair<string, string>(
-                "ondragleave", "changeClass(this, 'dragover')"));
-            mainDiv.Attributes.Add(new KeyValuePair<string, string>(
-                "ondragend", "changeClass(this, 'dragover')"));
-            mainDiv.Attributes.Add(new KeyValuePair<string, string>(
-                "ondrop", "dropHandler(event);"));
-            mainDiv.InnerHtml += img.ToString(TagRenderMode.SelfClosing);
-            mainDiv.InnerHtml += div.ToString();
-
-            var col = new TagBuilder("div");
-            col.AddCssClass("col");
-            col.InnerHtml = mainDiv.ToString();
-            
-            var row = new TagBuilder("div");
-            row.AddCssClass("row");
-            row.InnerHtml += col.ToString();
-
-            return new HtmlString(row.ToString());
-        }
-        
         public static HtmlString BuildEditorTools()
         {
             var styles = new[] {"underline", "overline", "line-through"};

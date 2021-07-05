@@ -31,13 +31,6 @@ function sendNotification(title, options) {
     // по этому поводу.
 }
 
-// DRAG AND DROP
-
-function dropHandler(ev) {
-    let data = ev.dataTransfer.getData('text');
-    alert(data);
-}
-
 // CARET POSITION
 function setSelectionRange(input, selectionStart, selectionEnd) {
     if (input.setSelectionRange) {

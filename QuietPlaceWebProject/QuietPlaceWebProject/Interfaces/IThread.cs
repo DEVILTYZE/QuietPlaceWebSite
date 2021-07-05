@@ -1,4 +1,7 @@
-﻿namespace QuietPlaceWebProject.Interfaces
+﻿using System.Collections.Generic;
+using QuietPlaceWebProject.Models;
+
+namespace QuietPlaceWebProject.Interfaces
 {
     // Все права на взаимодействие с тредами есть у админа.
     // Право на удаление треда есть дополнительно у модераторов.
@@ -14,5 +17,7 @@
         int BoardId { get; set; }
         
         int PosterId { get; set; }
+        
+        string MediaUrl { get; set; }
     }
 }

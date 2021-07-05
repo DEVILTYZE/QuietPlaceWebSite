@@ -61,7 +61,7 @@
         <table class="table text-light">
             <thead>
             <tr>
-                <th>ID</th>
+                <th>№</th>
                 <th>IP-адрес</th>
                 <th>Роль</th>
                 <th>Пасскод</th>
@@ -71,25 +71,25 @@
             </thead>
             <tbody>
             @{
+                var count = 1;
+                
                 foreach (var user in Model)
                 {
                     <tr>
-                        <th>@user.Id</th>
+                        <th>@count</th>
                         <td>@user.IpAddress</td>
-                        <td><select asp-items="ViewBag.Roles" class="bg-dark text-light">
-                            <option selected="selected" disabled="disabled">
-                                @foreach (var item in (SelectList) ViewBag.Roles)
-                                {
-                                    if (user.RoleId != int.Parse(item.Value))
-                                        continue;
-                                    
-                                    <div>
-                                        @item.Text
-                                    </div>
-                                    break;
-                                }
-                            </option>
-                        </select></td>
+                        <td>
+                            @foreach (var item in (SelectList) ViewBag.Roles)
+                            {
+                                if (user.RoleId != int.Parse(item.Value))
+                                    continue;
+                                
+                                <div>
+                                    @item.Text
+                                </div>
+                                break;
+                            }
+                        </td>
                         <td>@user.Passcode</td>
                         @if (user.RoleId == 5)
                         {
@@ -113,7 +113,7 @@
                                                 if (user.Id != 1)
                                                 {
                                                     removeAnon = string.Empty;
-
+                                                    
                                                     if (user.RoleId == 5)
                                                         banAnon = string.Empty;
                                                 }
@@ -138,7 +138,10 @@
                             </div>
                         </td>
                     </tr>
+                    
+                    ++count;
                 }
+
             }
             </tbody>
         </table>

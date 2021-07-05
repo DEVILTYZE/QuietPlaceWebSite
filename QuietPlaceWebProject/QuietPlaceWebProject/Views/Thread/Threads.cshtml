@@ -38,12 +38,37 @@
         {
             foreach (var thread in Model)
             {
-                <div class="row">
-                    <div class="col">
-                        <a asp-action="Posts" asp-controller="Post" asp-route-threadId="@thread.Id"
-                           class="btn btn-dark">@thread.Name</a>
-                    </div>
+                var post = (ViewBag.Posts as List<Post>).First(localPost => localPost.ThreadId == thread.Id);
+                
+                <div class="card bg-dark text-light">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-auto"><h4>@thread.Name</h4></div>
+                                <div class="col-auto">ID: @post.Id</div>
+                                <div class="col-auto">@post.DateOfCreation.ToString("F")</div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                @if (thread.MediaUrl is not null)
+                                {
+                                    <div class="col-auto">
+                                        @TextHelper.BuildMediaFiles(thread.MediaUrl)
+                                    </div>
+                                }
+                                <div class="col text-wrap text-break">
+                                    @TextHelper.BuildText(post.Text)
+                                </div>
+                            </div>
+                            <div class="row justify-content-end">
+                                <div class="col-auto">
+                                    <a asp-action="Posts" asp-controller="Post" 
+                                       asp-route-threadId="@thread.Id" class="btn btn-secondary">Ответить в тред</a>
+                                </div>
+                            </div>
+                        </div>
                 </div>
+                <br>
             }
         }
 </div>

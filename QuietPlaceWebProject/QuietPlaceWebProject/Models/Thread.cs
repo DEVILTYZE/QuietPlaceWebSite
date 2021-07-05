@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Mvc;
 using QuietPlaceWebProject.Interfaces;
@@ -26,5 +27,8 @@ namespace QuietPlaceWebProject.Models
         [Required]
         [HiddenInput(DisplayValue = false)]
         public int PosterId { get; set; }
+        
+        [HiddenInput(DisplayValue = false)]
+        public string MediaUrl { get; set; }
     }
 }

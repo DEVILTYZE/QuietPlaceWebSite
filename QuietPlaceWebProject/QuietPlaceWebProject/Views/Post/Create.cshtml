@@ -47,6 +47,7 @@ else
                                     <textarea asp-for="Text" class="form-control bg-dark text-light" id="textPost" 
                                         type="text" rows="15" placeholder="Ваш ответ..." style="resize: none" autofocus
                                         oninput="countSymbols(this)"></textarea>
+                                    <span asp-validation-for="Text" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="row">
@@ -60,7 +61,7 @@ else
                             </div>
                             <br>
                         }
-                        @EditorHelper.BuildMediafileTool()
+                        <input name="upload" type="file" />
                         <br>
                         @EditorHelper.BuildCaptchaTool(ViewBag.CaptchaImage as string ?? "NULL")
                         <br>

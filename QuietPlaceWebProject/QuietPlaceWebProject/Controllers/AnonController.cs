@@ -29,7 +29,8 @@ namespace QuietPlaceWebProject.Controllers
             var users = roleId is null 
                 ? _dbUser.Users.ToList()
                 : _dbUser.Users.Where(localUser => localUser.RoleId == roleId).ToList();
-            
+
+            ViewBag.PasscodeMessage = TempData["PasscodeMessage"];
             ViewBag.Roles = new SelectList(_dbUser.Roles, "Id", "Name");
 
             if (users.Count == 0)
@@ -45,9 +46,13 @@ namespace QuietPlaceWebProject.Controllers
             var passcode = TempData["Passcode"] as string ?? "NULL";
             var ipAddress = await GetUserIpAddress();
 
-            if (await _dbUser.Users.AnyAsync(localUser => ipAddress == localUser.IpAddress))
+            if (await _dbUser.Users.AnyAsync(localUser => string.Compare(localUser.IpAddress, ipAddress) == 0))
             {
-                if (string.Compare(passcode, "NULL") != 0)
+                var currentUser = await _dbUser.Users.FirstAsync(localUser
+                    => string.Compare(localUser.IpAddress, ipAddress) == 0);
+                    
+                if (string.Compare(passcode, "NULL") != 0 
+                    && string.Compare(currentUser.Passcode, passcode) == 0)
                     return RedirectToAction(nameof(SetPasscode), new {passcode});
                 
                 return threadId is not null 
@@ -163,7 +168,7 @@ namespace QuietPlaceWebProject.Controllers
                     Passcode = new string(passcodeWord)
                 };
 
-                ViewBag.PasscodeMessage = "Сгенерирован пасскод " + user.Passcode + " для роли " 
+                TempData["PasscodeMessage"] = "Сгенерирован пасскод " + user.Passcode + " для роли " 
                                           + (await _dbUser.Roles.FindAsync(user.RoleId)).Name;
                 
                 await _dbUser.AddAsync(user);
